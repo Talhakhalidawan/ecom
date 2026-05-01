@@ -25,4 +25,4 @@ def home(request):
         'faq_sections': faq_sections,
     }
 
-    return render(request, 'home/index.html', context)
+    return render(request, 'main/home.html', context)

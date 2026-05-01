@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site_settings.site_name|default:'Luxe Perfume' }}{% endblock %}</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (via CDN for rapid development) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        // These link exactly to the CSS variables defined below
+                        theme_primary: 'var(--color-primary)',
+                        theme_accent: 'var(--color-accent)',
+                        theme_bg: 'var(--color-bg)',
+                    },
+                    fontFamily: {
+                        sans: ['Lato', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Dynamic Theme Styling -->
+    <style>
+        :root {
+            /* Fallbacks are black and golden, but will be overwritten by admin settings */
+            --color-primary: {{ site_settings.primary_color|default:'#000000' }};
+            --color-accent: {{ site_settings.accent_color|default:'#b08d57' }};
+            --color-bg: {{ site_settings.bg_color|default:'#ffffff' }};
+        }
+
+        /* Custom Utilities that Tailwind doesn't have natively by default */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+        
+        /* Smooth state transitions for the review carousel */
+        .review-slide {
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.6s ease;
+        }
+        .review-slide.is-center {
+            opacity: 1 !important;
+            transform: scale(1.02) !important;
+            z-index: 10;
+        }
+        
+        /* FAQ Icon rotation */
+        .faq-item.active .faq-icon {
+            transform: rotate(45deg);
+        }
+    </style>
+</head>
+<body class="font-sans text-theme_primary bg-theme_bg antialiased overflow-x-hidden">
+
+    {% include 'partials/navbar.html' %}
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- Footer goes here eventually -->
+
+</body>
+</html>
