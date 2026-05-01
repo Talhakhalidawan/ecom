@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from main.models import Product
+from products.models import Product
 
 class User(AbstractUser):
     """
