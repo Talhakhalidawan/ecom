@@ -1,0 +1,62 @@
+<!-- partials/product.html -->
+<div class="text-left font-sans">
+    
+    <!-- Image Wrapper (Handles hover states for image zoom and quick add button) -->
+    <div class="relative aspect-[3/4] bg-gray-100 mb-4 overflow-hidden group/image">
+        <a href="{% url 'products:product_detail' product.slug %}" class="block w-full h-full">
+            {% if product.get_main_image %}
+                <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" loading="lazy" 
+                     class="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-[1.03]">
+            {% else %}
+                <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=400" alt="{{ product.name }}" 
+                     class="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-[1.03]">
+            {% endif %}
+        </a>
+        
+        <!-- Badges -->
+        {% if product.sale_price or product.is_new_arrival %}
+        <div class="absolute top-2.5 left-2.5 flex gap-1.5 z-10">
+            {% if product.is_new_arrival %}
+                <span class="bg-theme_primary text-white text-[10px] tracking-widest uppercase px-2 py-1">New</span>
+            {% endif %}
+            {% if product.sale_price %}
+                <span class="bg-theme_accent text-white text-[10px] tracking-widest uppercase px-2 py-1">Sale</span>
+            {% endif %}
+        </div>
+        {% endif %}
+        
+        <!-- Hover Actions -->
+        <div class="absolute bottom-0 left-0 w-full translate-y-full transition-transform duration-300 ease-in-out group-hover/image:translate-y-0 z-20">
+            <form action="{% url 'orders:add_to_cart' %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="w-full py-3.5 bg-white/95 backdrop-blur-sm border-t border-gray-200 font-sans text-xs tracking-[1.5px] uppercase text-theme_primary transition-colors duration-300 hover:bg-theme_primary hover:text-white">
+                    Add to Cart
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Product Info -->
+    <div class="px-1.5 pt-1">
+        <span class="block text-[11px] tracking-widest uppercase text-gray-500 mb-1.5">
+            {{ product.brand.name|default:"Luxe Perfume" }}
+        </span>
+        
+        <h3 class="font-serif text-lg font-normal mb-2">
+            <a href="{% url 'products:product_detail' product.slug %}" class="text-theme_primary transition-colors duration-300 hover:text-theme_accent line-clamp-1">
+                {{ product.name }}
+            </a>
+        </h3>
+        
+        <div class="text-sm text-theme_primary">
+            {% if product.sale_price %}
+                <span>${{ product.sale_price }}</span>
+                <span class="text-[13px] text-gray-500 line-through ml-2">${{ product.base_price }}</span>
+            {% else %}
+                <span>${{ product.base_price }}</span>
+            {% endif %}
+        </div>
+    </div>
+</div>
