@@ -35,6 +35,19 @@ class Product(models.Model):
         (200, '200ml'),
         (250, '250ml'),
     ]
+
+    PERFUME_CATEGORY_SUGGESTIONS = [
+    "Floral",
+    "Woody",
+    "Amber",
+    "Citrus",
+    "Fresh / Aquatic",
+    "Gourmand",
+    "Spicy",
+    "Chypre",
+    "Leather",
+    "Aromatic",
+    ]
     
     # Core Details
     name = models.CharField(max_length=255)
@@ -42,7 +55,7 @@ class Product(models.Model):
     sku = models.CharField(max_length=50, unique=True)
     short_description = models.CharField(max_length=255)
     description = models.TextField()
-    category = models.CharField(max_length=255)
+    category = models.CharField(max_length=100, db_index=True)
     
     # Perfume DNA
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='unisex')
