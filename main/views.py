@@ -2,7 +2,6 @@ from django.shortcuts import render
 from django.http import QueryDict
 from products.models import Product
 from main.models import HomeBanner
-from django.views.generic import TemplateView
 from .models import *
 
 def home(request):

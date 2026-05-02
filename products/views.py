@@ -1,5 +1,7 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Product, Size
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from .models import Product, Size, Review
+from .forms import ReviewForm
 from django.db.models import Q
 
 def search_view(request):
@@ -88,7 +90,23 @@ def product_detail(request, slug):
         'review_count': product.review_count,
         'average_rating': product.avg_rating,
         'related_products': related_products,
+        'review_form': ReviewForm(),
     }
     return render(request, 'products/details.html', context)
+
+@login_required
+def add_review(request, product_id):
+    product = get_object_or_404(Product, id=product_id)
+    if request.method == 'POST':
+        form = ReviewForm(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.product = product
+            review.user = request.user
+            # For now, auto-approve reviews or keep them pending?
+            # Let's keep them pending but allow the user to see success message.
+            review.save()
+            return redirect('products:detail', slug=product.slug)
+    return redirect('products:detail', slug=product.slug)
 
 

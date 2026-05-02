@@ -123,15 +123,15 @@ class Product(models.Model):
 
     @property
     def avg_rating(self):
-        reviews = self.reviews.all()
-        if reviews.exists():
+        approved_reviews = self.reviews.filter(is_approved=True)
+        if approved_reviews.exists():
             from django.db.models import Avg
-            return reviews.aggregate(Avg('rating'))['rating__avg']
+            return approved_reviews.aggregate(Avg('rating'))['rating__avg']
         return 0
 
     @property
     def review_count(self):
-        return self.reviews.count()
+        return self.reviews.filter(is_approved=True).count()
 
 class ProductMedia(models.Model):
     MEDIA_TYPES = [
@@ -166,7 +166,7 @@ class Review(models.Model):
     title = models.CharField(max_length=255, blank=True)
     comment = models.TextField()
     
-    is_approved = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:

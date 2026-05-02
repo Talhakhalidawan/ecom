@@ -228,7 +228,53 @@
                             </div>
                             <span class="text-[11px] tracking-[2px] uppercase text-gray-400 font-medium">Essential Feedback from Connoisseurs</span>
                         </div>
-                        <button class="bg-black text-white text-[11px] tracking-[3px] uppercase py-5 px-10 hover:bg-theme_primary transition-all duration-500">Write an Appreciation</button>
+                        <button onclick="toggleReviewForm()" class="bg-black text-white text-[11px] tracking-[3px] uppercase py-5 px-10 hover:bg-theme_primary transition-all duration-500">Write an Review</button>
+                    </div>
+
+                    <!-- Review Form (Hidden by default) -->
+                    <div id="reviewFormContainer" class="hidden mb-20 animate-fadeIn overflow-hidden">
+                        <div class="bg-gray-50 border border-gray-100 p-10 md:p-16">
+                            <h3 class="font-serif text-3xl text-theme_primary mb-8 text-center">Share Your Experience</h3>
+                            
+                            {% if user.is_authenticated %}
+                            <form action="{% url 'products:add_review' product.id %}" method="post" class="space-y-8">
+                                {% csrf_token %}
+                                
+                                <!-- Star Rating Picker -->
+                                <div class="flex flex-col items-center gap-4 mb-10">
+                                    <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Select Rating</span>
+                                    <div class="flex gap-3 text-2xl text-gray-200" id="starPicker">
+                                        <i class="far fa-star cursor-pointer hover:text-theme_primary transition-colors" data-rating="1"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-theme_primary transition-colors" data-rating="2"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-theme_primary transition-colors" data-rating="3"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-theme_primary transition-colors" data-rating="4"></i>
+                                        <i class="far fa-star cursor-pointer hover:text-theme_primary transition-colors" data-rating="5"></i>
+                                    </div>
+                                    {{ review_form.rating }}
+                                </div>
+
+                                <div class="grid grid-cols-1 gap-6">
+                                    <div>
+                                        {{ review_form.title }}
+                                    </div>
+                                    <div>
+                                        {{ review_form.comment }}
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-center pt-4">
+                                    <button type="submit" class="bg-theme_primary text-white text-[11px] tracking-[3px] uppercase py-5 px-16 hover:bg-black transition-all duration-500 shadow-xl shadow-theme_primary/20">
+                                        Submit Review
+                                    </button>
+                                </div>
+                            </form>
+                            {% else %}
+                            <div class="text-center py-10">
+                                <p class="text-gray-400 font-light mb-6">Please sign in to share your olfactory journey.</p>
+                                <a href="/accounts/login/?next={{ request.path }}" class="inline-block bg-black text-white text-[11px] tracking-[2px] uppercase py-4 px-10 hover:bg-theme_primary transition-all">Sign In</a>
+                            </div>
+                            {% endif %}
+                        </div>
                     </div>
 
                     <div class="space-y-12">
@@ -238,7 +284,7 @@
                                 <div class="flex items-center gap-4">
                                     <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center font-bold text-theme_primary text-sm">{{ review.user.first_name|first|default:"C" }}</div>
                                     <div>
-                                        <h4 class="text-sm font-bold text-theme_primary">{{ review.user.get_full_name|default:"Valued Client" }}</h4>
+                                        <h4 class="text-sm font-bold text-theme_primary">{{ review.user.get_full_name|default:review.user.username }}</h4>
                                         <span class="text-[10px] text-gray-400 uppercase tracking-widest">{{ review.created_at|date:"M d, Y" }}</span>
                                     </div>
                                 </div>
@@ -364,6 +410,50 @@
     function copyLink() {
         navigator.clipboard.writeText(window.location.href);
         alert("Discovery link copied to clipboard.");
+    }
+
+    function toggleReviewForm() {
+        const container = document.getElementById('reviewFormContainer');
+        container.classList.toggle('hidden');
+        if (!container.classList.contains('hidden')) {
+            container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
+    // Star Picker Logic
+    const stars = document.querySelectorAll('#starPicker i');
+    const ratingInput = document.getElementById('form-rating');
+
+    stars.forEach(star => {
+        star.addEventListener('click', function() {
+            const rating = this.getAttribute('data-rating');
+            ratingInput.value = rating;
+            updateStars(rating);
+        });
+
+        star.addEventListener('mouseenter', function() {
+            const rating = this.getAttribute('data-rating');
+            updateStars(rating, true);
+        });
+    });
+
+    document.getElementById('starPicker').addEventListener('mouseleave', function() {
+        updateStars(ratingInput.value || 0);
+    });
+
+    function updateStars(rating, hover = false) {
+        stars.forEach(s => {
+            const sRating = s.getAttribute('data-rating');
+            if (sRating <= rating) {
+                s.classList.remove('far');
+                s.classList.add('fas');
+                if (!hover) s.classList.add('text-theme_primary');
+            } else {
+                s.classList.remove('fas');
+                s.classList.add('far');
+                if (!hover) s.classList.remove('text-theme_primary');
+            }
+        });
     }
 </script>
 {% endblock %}
