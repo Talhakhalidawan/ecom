@@ -63,3 +63,9 @@ class NavLinksAdmin(admin.ModelAdmin):
 class FooterLinksAdmin(admin.ModelAdmin):
     list_display = ('title', 'link', 'display_order', 'is_active')
     list_editable = ('display_order', 'is_active')
+
+@admin.register(SiteSettings)
+class SiteSettingsAdmin(admin.ModelAdmin):
+    list_display = ('name', 'primary_color', 'secondary_color', 'bg_color')
+    list_editable = ('primary_color', 'secondary_color', 'bg_color')
+    list_display_links = ('name',)

@@ -41,31 +41,11 @@
     <!-- Dynamic Theme Styling -->
     <style>
         :root {
+            --color-primary: {{ site_settings.primary_color }};
 
-            /* Fallbacks are black and golden, but will be overwritten by admin settings */
-            --color-primary: {
-                    {
-                    site_settings.primary_color|default: '#000000'
-                }
-            }
+            --color-accent: {{ site_settings.secondary_color|default:'#b08d57' }};
 
-            ;
-
-            --color-accent: {
-                    {
-                    site_settings.accent_color|default: '#b08d57'
-                }
-            }
-
-            ;
-
-            --color-bg: {
-                    {
-                    site_settings.bg_color|default: '#ffffff'
-                }
-            }
-
-            ;
+            --color-bg: {{ site_settings.bg_color|default:'#ffffff' }};
         }
 
         /* Custom Utilities that Tailwind doesn't have natively by default */

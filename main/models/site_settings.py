@@ -49,3 +49,9 @@ class FooterLinks(models.Model):
 
     def __str__(self):
         return self.title
+
+class SiteSettings(models.Model):
+    name = models.CharField(max_length=255)
+    primary_color = models.CharField(max_length=100)
+    secondary_color = models.CharField(max_length=100)
+    bg_color = models.CharField(max_length=100)
