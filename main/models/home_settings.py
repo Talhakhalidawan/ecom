@@ -8,7 +8,7 @@ class HeroSlide(models.Model):
     """
     big_image = models.ImageField(upload_to='home/hero/')
     small_image = models.ImageField(upload_to='home/hero/', help_text="Mobile image")
-    link = models.URLField(blank=True, null=True)
+    link = models.CharField(max_length=255)
     
     display_order = models.PositiveIntegerField(default=0)
     is_active = models.BooleanField(default=True)
@@ -68,7 +68,7 @@ class HomeCategory(models.Model):
     """
     title = models.CharField(max_length=255)
     image = models.ImageField(upload_to='home/categories/')
-    link = models.URLField()
+    link = models.CharField(max_length=255)
     bottom_text = models.CharField(max_length=50, default="Shop Now")
     
     display_order = models.PositiveIntegerField(default=0)
@@ -89,7 +89,7 @@ class HomeBanner(models.Model):
     # Promotional Banner
     banner_big_image = models.ImageField(upload_to='home/banners/', blank=True, null=True)
     banner_small_image = models.ImageField(upload_to='home/banners/', blank=True, null=True, help_text="Mobile optimized image")
-    banner_link = models.URLField(blank=True, null=True)
+    banner_link = models.CharField(max_length=255)
 
     def __str__(self):
         return "Banner"

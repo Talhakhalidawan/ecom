@@ -1,89 +1,369 @@
 {% extends 'base.html' %}
 
+{% block title %}{{ product.name }} - Luxe Perfume{% endblock %}
+
 {% block content %}
-<section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex flex-col lg:flex-row gap-16">
-            <!-- Product Images -->
-            <div class="w-full lg:w-1/2 space-y-4">
-                <div class="aspect-[4/5] bg-gray-50 overflow-hidden">
+<section class="py-12 bg-white">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs -->
+        <nav class="flex mb-10 text-[10px] tracking-[2px] uppercase text-gray-400">
+            <a href="/" class="hover:text-theme_primary transition">Home</a>
+            <span class="mx-3 text-[8px] opacity-50 flex items-center"><i class="fas fa-chevron-right"></i></span>
+            <a href="{% url 'products:search' %}" class="hover:text-theme_primary transition">Shop</a>
+            <span class="mx-3 text-[8px] opacity-50 flex items-center"><i class="fas fa-chevron-right"></i></span>
+            <span class="text-gray-600">{{ product.name }}</span>
+        </nav>
+
+        <div class="flex flex-col lg:flex-row gap-16 xl:gap-24">
+            <!-- Left: Product Images -->
+            <div class="w-full lg:w-[55%] space-y-6">
+                <!-- Main Image -->
+                <div class="relative aspect-[4/5] bg-gray-50 overflow-hidden group">
                     {% if product.get_main_image %}
-                    <img src="{{ product.get_main_image.file.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                        <img src="{{ product.get_main_image.file.url }}" alt="{{ product.name }}" id="mainImage" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
                     {% else %}
-                    <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=800" alt="Placeholder" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=800" alt="{{ product.name }}" id="mainImage" class="w-full h-full object-cover">
+                    {% endif %}
+                    
+                    {% if product.is_new_arrival %}
+                    <span class="absolute top-6 left-6 bg-theme_primary text-white text-[10px] tracking-[2px] uppercase py-2 px-4 z-10 shadow-lg">New Arrival</span>
                     {% endif %}
                 </div>
-                <!-- Gallery would go here -->
+
+                <!-- Thumbnails -->
+                {% if product.media.count > 1 %}
+                <div class="flex gap-4 overflow-x-auto pb-2 no-scrollbar">
+                    {% for media in product.media.all %}
+                        {% if media.media_type == 'image' %}
+                        <button onclick="changeImage('{{ media.file.url }}', this)" 
+                                class="w-24 h-24 flex-shrink-0 border-2 transition-all {% if media.is_main %}border-theme_primary shadow-md{% else %}border-transparent opacity-70 hover:opacity-100{% endif %}">
+                            <img src="{{ media.file.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                        </button>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
             </div>
 
-            <!-- Product Info -->
-            <div class="w-full lg:w-1/2">
-                <nav class="flex mb-6 text-[10px] tracking-widest uppercase text-gray-400">
-                    <a href="/">Home</a>
-                    <span class="mx-2">/</span>
-                    <a href="{% url 'products:search' %}?category={{ product.category }}">{{ product.category }}</a>
-                </nav>
+            <!-- Right: Product Info -->
+            <div class="w-full lg:w-[45%] flex flex-col pt-4">
+                <div class="mb-10 text-center lg:text-left">
+                    <span class="block text-[12px] tracking-[3px] uppercase text-theme_primary/60 font-medium mb-3">{{ product.category }}</span>
+                    <h1 class="font-serif text-4xl md:text-5xl lg:text-6xl text-theme_primary mb-6 leading-tight">{{ product.name }}</h1>
+                    
+                    <!-- Rating Summary -->
+                    <div class="flex items-center justify-center lg:justify-start gap-4 mb-8">
+                        <div class="flex text-theme_primary text-sm">
+                            {% for i in "12345"|make_list %}
+                                {% if forloop.counter <= average_rating|default:0 %}
+                                    <i class="fas fa-star"></i>
+                                {% else %}
+                                    <i class="far fa-star"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                        <span class="text-[11px] tracking-[1.5px] uppercase text-gray-400">({{ review_count|default:0 }} Customer Reviews)</span>
+                    </div>
 
-                <h1 class="font-serif text-4xl md:text-5xl text-theme_primary mb-4">{{ product.name }}</h1>
-                <p class="text-[13px] tracking-[2px] uppercase text-gray-500 mb-8">{{ product.concentration|default:"Eau de Parfum" }}</p>
+                    <!-- Price -->
+                    <div class="flex items-center justify-center lg:justify-start gap-5 mb-10">
+                        {% if product.sale_price %}
+                            <span class="text-3xl font-serif text-theme_primary">${{ product.sale_price }}</span>
+                            <span class="text-xl text-gray-300 line-through">${{ product.base_price }}</span>
+                            <span class="text-[10px] tracking-[1px] uppercase bg-black text-white px-3 py-1">Save ${{ product.base_price|add:product.sale_price|default:0 }}</span>
+                        {% else %}
+                            <span class="text-3xl font-serif text-theme_primary">${{ product.base_price }}</span>
+                        {% endif %}
+                    </div>
 
-                <div class="text-2xl text-theme_primary mb-10">
-                    {% if product.sale_price %}
-                        <span>${{ product.sale_price }}</span>
-                        <span class="text-lg text-gray-400 line-through ml-4">${{ product.base_price }}</span>
+                    <!-- Short Description -->
+                    <p class="text-gray-500 font-light leading-relaxed mb-10 max-w-lg mx-auto lg:mx-0">
+                        {{ product.short_description|default:product.description|truncatewords:40 }}
+                    </p>
+
+                    <!-- Attributes Grid -->
+                    <div class="grid grid-cols-2 gap-y-6 gap-x-12 py-10 border-y border-gray-100 mb-10">
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Experience</span>
+                            <span class="text-[13px] text-theme_primary font-medium">{{ product.get_gender_display|default:"Unisex" }}</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Concentration</span>
+                            <span class="text-[13px] text-theme_primary font-medium uppercase">{{ product.get_concentration_display|default:"Eau de Parfum" }}</span>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Formats</span>
+                            <div class="flex flex-wrap gap-2 pt-1">
+                                {% for size in product.sizes.all %}
+                                <span class="bg-gray-50 border border-gray-200 text-[9px] tracking-[1px] px-2 py-1 uppercase text-gray-500">{{ size.name }}</span>
+                                {% empty %}
+                                <span class="text-[13px] text-theme_primary font-medium">Standard</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Status</span>
+                            <span class="text-[13px] {% if product.stock_quantity > 0 %}text-green-600{% else %}text-red-500{% endif %} font-medium">
+                                {% if product.stock_quantity > 0 %}Available ({{ product.stock_quantity }} units){% else %}Out of Stock{% endif %}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Form -->
+                    {% if product.stock_quantity > 0 %}
+                    <form action="" method="post" class="space-y-8">
+                        {% csrf_token %}
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        
+                        <div class="flex flex-col sm:flex-row gap-4">
+                            <!-- Quantity -->
+                            <div class="flex items-center border border-gray-200 h-16 w-full sm:w-40 bg-gray-50">
+                                <button type="button" onclick="decrementQty()" class="w-12 h-full flex items-center justify-center hover:bg-gray-100 transition"><i class="fas fa-minus text-xs"></i></button>
+                                <input type="number" name="quantity" id="qtyInput" value="1" min="1" max="{{ product.stock_quantity }}" class="flex-grow bg-transparent text-center border-none focus:ring-0 text-sm font-medium">
+                                <button type="button" onclick="incrementQty()" class="w-12 h-full flex items-center justify-center hover:bg-gray-100 transition"><i class="fas fa-plus text-xs"></i></button>
+                            </div>
+                            
+                            <!-- Submit -->
+                            <button type="submit" class="flex-grow h-16 bg-theme_primary text-white text-[12px] tracking-[3px] uppercase hover:bg-black transition-all duration-300 font-medium px-10 shadow-lg shadow-theme_primary/10">
+                                Add to Collection
+                            </button>
+                        </div>
+                    </form>
                     {% else %}
-                        <span>${{ product.base_price }}</span>
+                    <button disabled class="w-full h-16 border border-gray-200 text-gray-400 text-[11px] tracking-[2px] uppercase cursor-not-allowed">
+                        Notify When Available
+                    </button>
+                    {% endif %}
+
+                    <!-- Secondary Actions -->
+                    <div class="flex items-center justify-center lg:justify-start gap-10 mt-10">
+                        <button class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
+                            <i class="far fa-heart"></i>
+                            <span>Add to Wishlist</span>
+                        </button>
+                        <button onclick="window.print()" class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
+                            <i class="fas fa-print"></i>
+                            <span>Print</span>
+                        </button>
+                        <button onclick="copyLink()" class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+
+                    <!-- Trust Badges -->
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-16 p-8 bg-gray-50 border border-gray-100">
+                        <div class="flex flex-col items-center text-center gap-3">
+                            <i class="fas fa-shield-alt text-theme_primary text-2xl opacity-50"></i>
+                            <span class="text-[10px] tracking-[1.5px] uppercase text-gray-600 font-medium">Authenticity<br>Guaranteed</span>
+                        </div>
+                        <div class="flex flex-col items-center text-center gap-3 border-y sm:border-y-0 sm:border-x border-gray-200 py-6 sm:py-0">
+                            <i class="fas fa-truck text-theme_primary text-2xl opacity-50"></i>
+                            <span class="text-[10px] tracking-[1.5px] uppercase text-gray-600 font-medium">Global Express<br>Shipping</span>
+                        </div>
+                        <div class="flex flex-col items-center text-center gap-3">
+                            <i class="fas fa-undo text-theme_primary text-2xl opacity-50"></i>
+                            <span class="text-[10px] tracking-[1.5px] uppercase text-gray-600 font-medium">30-Day Luxury<br>Returns</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs Content -->
+        <div class="mt-32">
+            <div class="flex border-b border-gray-200 gap-10 justify-center mb-16 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('description')" id="tab-btn-description" class="tab-btn active pb-6 border-b-2 border-theme_primary text-theme_primary text-[11px] tracking-[3px] uppercase font-bold transition-all whitespace-nowrap">Description</button>
+                <button onclick="switchTab('notes')" id="tab-btn-notes" class="tab-btn pb-6 border-b-2 border-transparent text-gray-300 hover:text-gray-600 text-[11px] tracking-[3px] uppercase font-bold transition-all whitespace-nowrap">Olfactive Pyramide</button>
+                <button onclick="switchTab('reviews')" id="tab-btn-reviews" class="tab-btn pb-6 border-b-2 border-transparent text-gray-300 hover:text-gray-600 text-[11px] tracking-[3px] uppercase font-bold transition-all whitespace-nowrap">Reviews ({{ review_count|default:0 }})</button>
+                <button onclick="switchTab('shipping')" id="tab-btn-shipping" class="tab-btn pb-6 border-b-2 border-transparent text-gray-300 hover:text-gray-600 text-[11px] tracking-[3px] uppercase font-bold transition-all whitespace-nowrap">Shipping & Returns</button>
+            </div>
+
+            <!-- Tab Panels -->
+            <div id="tab-description" class="tab-panel animate-fadeIn">
+                <div class="max-w-4xl mx-auto py-10 prose prose-lg font-light text-gray-600">
+                    {{ product.description|linebreaks }}
+                </div>
+            </div>
+
+            <div id="tab-notes" class="tab-panel hidden animate-fadeIn">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center max-w-6xl mx-auto py-10">
+                    {% if product.top_notes %}
+                    <div class="p-12 bg-white border border-gray-100 space-y-6">
+                        <div class="w-16 h-16 bg-theme_primary/5 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-feather-alt text-theme_primary opacity-50"></i>
+                        </div>
+                        <h4 class="font-serif text-xl">Top Notes</h4>
+                        <p class="text-sm font-light text-gray-500 leading-relaxed">{{ product.top_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if product.heart_notes %}
+                    <div class="p-12 bg-white border border-gray-100 space-y-6">
+                        <div class="w-16 h-16 bg-theme_primary/5 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-heart text-theme_primary opacity-50"></i>
+                        </div>
+                        <h4 class="font-serif text-xl">Heart Notes</h4>
+                        <p class="text-sm font-light text-gray-500 leading-relaxed">{{ product.heart_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if product.base_notes %}
+                    <div class="p-12 bg-white border border-gray-100 space-y-6">
+                        <div class="w-16 h-16 bg-theme_primary/5 rounded-full flex items-center justify-center mx-auto">
+                            <i class="fas fa-gem text-theme_primary opacity-50"></i>
+                        </div>
+                        <h4 class="font-serif text-xl">Base Notes</h4>
+                        <p class="text-sm font-light text-gray-500 leading-relaxed">{{ product.base_notes }}</p>
+                    </div>
                     {% endif %}
                 </div>
+            </div>
 
-                <div class="prose prose-sm text-gray-600 mb-12">
-                    <p>{{ product.description|linebreaksbr }}</p>
-                </div>
+            <div id="tab-reviews" class="tab-panel hidden animate-fadeIn">
+                <div class="max-w-4xl mx-auto py-10">
+                    <div class="flex flex-col md:flex-row justify-between items-center mb-16 gap-8">
+                        <div class="text-center md:text-left">
+                            <h3 class="text-5xl font-serif text-theme_primary mb-3">{{ average_rating|default:"5.0" }}</h3>
+                            <div class="flex text-theme_primary mb-3 justify-center md:justify-start">
+                                {% for i in "12345"|make_list %}<i class="fas fa-star text-sm"></i>{% endfor %}
+                            </div>
+                            <span class="text-[11px] tracking-[2px] uppercase text-gray-400 font-medium">Essential Feedback from Connoisseurs</span>
+                        </div>
+                        <button class="bg-black text-white text-[11px] tracking-[3px] uppercase py-5 px-10 hover:bg-theme_primary transition-all duration-500">Write an Appreciation</button>
+                    </div>
 
-                <!-- Sizes Selector -->
-                {% if product.sizes.exists %}
-                <div class="mb-10">
-                    <h3 class="text-[11px] tracking-widest uppercase text-gray-900 mb-4">Available Formats</h3>
-                    <div class="flex flex-wrap gap-3">
-                        {% for size in product.sizes.all %}
-                        <div class="px-5 py-3 border border-gray-200 text-xs tracking-widest uppercase text-theme_primary">
-                            {{ size.name }}
+                    <div class="space-y-12">
+                        {% for review in reviews %}
+                        <div class="pb-12 border-b border-gray-100">
+                            <div class="flex justify-between items-start mb-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center font-bold text-theme_primary text-sm">{{ review.user.first_name|first|default:"C" }}</div>
+                                    <div>
+                                        <h4 class="text-sm font-bold text-theme_primary">{{ review.user.get_full_name|default:"Valued Client" }}</h4>
+                                        <span class="text-[10px] text-gray-400 uppercase tracking-widest">{{ review.created_at|date:"M d, Y" }}</span>
+                                    </div>
+                                </div>
+                                <div class="flex text-theme_primary lg:text-[10px]">
+                                    {% for i in "12345"|make_list %}<i class="{% if forloop.counter <= review.rating %}fas{% else %}far{% endif %} fa-star"></i>{% endfor %}
+                                </div>
+                            </div>
+                            {% if review.title %}<h5 class="font-serif text-lg mb-3">{{ review.title }}</h5>{% endif %}
+                            <p class="text-sm font-light text-gray-500 leading-relaxed">{{ review.comment }}</p>
+                        </div>
+                        {% empty %}
+                        <div class="py-20 text-center bg-gray-50 border border-dashed border-gray-200">
+                            <i class="far fa-comment-alt text-4xl text-gray-300 mb-6"></i>
+                            <p class="text-gray-400 font-light italic">Be the first to share your experience with this masterpiece.</p>
                         </div>
                         {% endfor %}
                     </div>
                 </div>
-                {% endif %}
+            </div>
 
-                <!-- Notes / Scent Profile -->
-                {% if product.top_notes or product.heart_notes or product.base_notes %}
-                <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-8 py-8 border-y border-gray-100">
-                    {% if product.top_notes %}
-                    <div>
-                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Top Notes</h4>
-                        <p class="text-sm text-gray-800">{{ product.top_notes }}</p>
+            <div id="tab-shipping" class="tab-panel hidden animate-fadeIn">
+                <div class="max-w-4xl mx-auto py-10 grid grid-cols-1 md:grid-cols-2 gap-16">
+                    <div class="space-y-8">
+                        <h4 class="text-[12px] tracking-[3px] uppercase font-bold text-theme_primary flex items-center gap-4">
+                            <span class="w-8 h-px bg-theme_primary"></span>
+                            Art of Shipping
+                        </h4>
+                        <div class="space-y-6 text-sm font-light text-gray-500 leading-relaxed">
+                            <p>Each fragrance is cushioned in bespoke packaging to ensure its safe arrival. We offer complimentary white-glove shipping on all collections over $200.</p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center gap-3"><i class="fas fa-check text-[10px] text-theme_primary"></i> Complimentary Sample with every order</li>
+                                <li class="flex items-center gap-3"><i class="fas fa-check text-[10px] text-theme_primary"></i> Fully insured priority delivery</li>
+                                <li class="flex items-center gap-3"><i class="fas fa-check text-[10px] text-theme_primary"></i> Signature required for security</li>
+                            </ul>
+                        </div>
                     </div>
-                    {% endif %}
-                    {% if product.heart_notes %}
-                    <div>
-                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Heart Notes</h4>
-                        <p class="text-sm text-gray-800">{{ product.heart_notes }}</p>
+                    <div class="space-y-8">
+                        <h4 class="text-[12px] tracking-[3px] uppercase font-bold text-theme_primary flex items-center gap-4">
+                            <span class="w-8 h-px bg-theme_primary"></span>
+                            Returns Policy
+                        </h4>
+                        <div class="space-y-6 text-sm font-light text-gray-500 leading-relaxed">
+                            <p>To preserve the integrity of our fragrances, we accept returns within 30 days only if the protective seal remains intact.</p>
+                            <p>Complimentary return collection can be arranged through our concierge service.</p>
+                        </div>
                     </div>
-                    {% endif %}
-                    {% if product.base_notes %}
-                    <div>
-                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Base Notes</h4>
-                        <p class="text-sm text-gray-800">{{ product.base_notes }}</p>
-                    </div>
-                    {% endif %}
                 </div>
-                {% endif %}
-
-                <!-- CTA -->
-                <button class="w-full py-5 bg-theme_primary text-white text-[13px] tracking-widest uppercase hover:bg-black transition duration-300">
-                    Add to Collection
-                </button>
             </div>
         </div>
     </div>
 </section>
+
+<!-- Related Products -->
+{% if related_products %}
+<section class="py-32 bg-gray-50">
+    <div class="max-w-[1400px] mx-auto px-4">
+        <div class="flex justify-between items-end mb-16 pb-6 border-b border-gray-200">
+            <div>
+                <span class="text-[11px] tracking-[3px] uppercase text-theme_primary opacity-60">You May Also Seek</span>
+                <h2 class="font-serif text-3xl md:text-4xl mt-3">Olfactory Affinities</h2>
+            </div>
+            <a href="{% url 'products:search' %}?category={{ product.category }}" class="text-[11px] tracking-[2px] uppercase text-gray-500 hover:text-theme_primary transition border-b border-transparent hover:border-theme_primary pb-1 font-bold">Discover Collection</a>
+        </div>
+        
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {% for product in related_products %}
+                {% include 'partials/product.html' %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fadeIn {
+        animation: fadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+
+<script>
+    function changeImage(src, btn) {
+        document.getElementById('mainImage').src = src;
+        document.querySelectorAll('.flex.gap-4 button').forEach(b => {
+            b.classList.remove('border-theme_primary', 'shadow-md');
+            b.classList.add('border-transparent', 'opacity-70');
+        });
+        btn.classList.add('border-theme_primary', 'shadow-md');
+        btn.classList.remove('border-transparent', 'opacity-70');
+    }
+
+    function incrementQty() {
+        const input = document.getElementById('qtyInput');
+        const max = parseInt(input.max);
+        const current = parseInt(input.value);
+        if (current < max) input.value = current + 1;
+    }
+
+    function decrementQty() {
+        const input = document.getElementById('qtyInput');
+        const current = parseInt(input.value);
+        if (current > 1) input.value = current - 1;
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+        document.getElementById('tab-' + tab).classList.remove('hidden');
+
+        document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('active', 'border-theme_primary', 'text-theme_primary');
+            b.classList.add('border-transparent', 'text-gray-300');
+        });
+        
+        const activeBtn = document.getElementById('tab-btn-' + tab);
+        activeBtn.classList.add('active', 'border-theme_primary', 'text-theme_primary');
+        activeBtn.classList.remove('border-transparent', 'text-gray-300');
+    }
+
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href);
+        alert("Discovery link copied to clipboard.");
+    }
+</script>
 {% endblock %}

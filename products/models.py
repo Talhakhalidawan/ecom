@@ -64,6 +64,10 @@ class Product(models.Model):
     short_description = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=100, db_index=True)
+
+    top_notes = models.CharField(max_length=255, blank=True, null=True)
+    heart_notes = models.CharField(max_length=255, blank=True, null=True)
+    base_notes = models.CharField(max_length=255, blank=True, null=True)
     
     # Perfume DNA
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='unisex')
@@ -117,6 +121,18 @@ class Product(models.Model):
         if not main_img:
             main_img = self.media.filter(media_type='image').first()
         return main_img
+
+    @property
+    def avg_rating(self):
+        reviews = self.reviews.all()
+        if reviews.exists():
+            from django.db.models import Avg
+            return reviews.aggregate(Avg('rating'))['rating__avg']
+        return 0
+
+    @property
+    def review_count(self):
+        return self.reviews.count()
 
 class ProductMedia(models.Model):
     MEDIA_TYPES = [

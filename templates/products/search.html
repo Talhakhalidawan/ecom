@@ -33,6 +33,23 @@
                         </select>
                     </div>
 
+                    <!-- Quick Filters -->
+                    <div>
+                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Collections</h3>
+                        <div class="space-y-4">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="new" value="true" {% if is_new %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors peer-checked:bg-theme_primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
+                                <span class="text-[13px] text-gray-600 transition group-hover:text-theme_primary">New Arrivals</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="checkbox" name="bestseller" value="true" {% if is_bestseller %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                                <div class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors peer-checked:bg-theme_primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
+                                <span class="text-[13px] text-gray-600 transition group-hover:text-theme_primary">Bestsellers</span>
+                            </label>
+                        </div>
+                    </div>
+
                     <!-- Category Filter -->
                     <div>
                         <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Category</h3>
