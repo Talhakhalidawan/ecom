@@ -27,16 +27,7 @@
     {% endif %}
 </section>
 {% else %}
-<section class="relative h-[85vh] min-h-[600px] bg-cover bg-center flex items-center justify-center text-center" style="background-image: url('{{ home_settings.fallback_hero_image.url|default:'https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1920' }}');">
-    <div class="absolute inset-0 bg-black/30"></div>
-    <div class="relative z-10 text-white max-w-3xl px-5">
-        <p class="font-sans text-[13px] tracking-[4px] uppercase mb-5">{{ home_settings.fallback_hero_subtitle|default:"L'Art de la Parfumerie" }}</p>
-        <h1 class="font-serif text-5xl md:text-[64px] font-normal leading-[1.1] mb-6">{{ home_settings.fallback_hero_title|default:"The Signature Collection" }}</h1>
-        <p class="text-base font-light mb-10">{{ home_settings.fallback_hero_desc|default:"Exquisite fragrances crafted from the world's finest raw materials." }}</p>
-        <div>
-            <a href="/" class="inline-block px-10 py-4 bg-white text-theme_primary font-sans text-[13px] tracking-[2px] uppercase transition-all duration-300 hover:bg-theme_primary hover:text-white border hover:border-white/20">Discover Now</a>
-        </div>
-    </div>
+<section class="relative h-[85vh] min-h-[600px] bg-cover bg-center flex items-center justify-center text-center" style="background-image: url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1920');">
 </section>
 {% endif %}
 
@@ -51,11 +42,6 @@
             {% if not forloop.last %}
             <div class="hidden md:block w-1 h-1 bg-theme_accent rounded-full"></div>
             {% endif %}
-            {% empty %}
-            <!-- Fallback Features -->
-            <div class="text-center"><span class="text-[11px] tracking-[1.5px] text-gray-700 uppercase">COMPLIMENTARY SHIPPING OVER $100</span></div>
-            <div class="hidden md:block w-1 h-1 bg-theme_accent rounded-full"></div>
-            <div class="text-center"><span class="text-[11px] tracking-[1.5px] text-gray-700 uppercase">AUTHENTICITY GUARANTEED</span></div>
             {% endfor %}
         </div>
     </div>
@@ -64,7 +50,13 @@
 <!-- 3. PRODUCT SECTIONS (Carousel or Grid) -->
 {% for section in sections %}
 <section class="py-20 bg-white">
-    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+    <!-- Dynamic Container Width -->
+    <div class="mx-auto px-4 sm:px-6 lg:px-8 
+        {% if section.container_width == 'standard' %}max-w-7xl
+        {% elif section.container_width == 'wide' %}max-w-[1400px]
+        {% elif section.container_width == 'full' %}max-w-full px-4 md:px-10
+        {% else %}max-w-[1400px]{% endif %}">
+        
         <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
             <h2 class="font-serif text-3xl md:text-4xl m-0">{{ section.title }}</h2>
             {% if section.query_url %}
@@ -74,10 +66,19 @@
 
         {% if section.display_type == 'carousel' %}
         <div class="relative w-full">
-            <div class="flex overflow-x-auto gap-5 md:gap-6 pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track">
+            <!-- Dynamic Carousel Spacing -->
+            <div class="flex overflow-x-auto pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track
+                {% if section.card_size == 'large' %}gap-8
+                {% elif section.card_size == 'medium' %}gap-6
+                {% else %}gap-4{% endif %}">
+                
                 {% for product in section.filtered_products %}
-                <div class="w-[80vw] md:w-[calc(25%-18px)] flex-shrink-0 snap-center">
-                    {% include 'partials/product.html' with large_card=True %}
+                <!-- Dynamic Carousel Item Width -->
+                <div class="flex-shrink-0 snap-center
+                    {% if section.card_size == 'large' %}w-[85vw] md:w-[calc(33.333%-22px)]
+                    {% elif section.card_size == 'medium' %}w-[80vw] md:w-[calc(25%-18px)]
+                    {% else %}w-[70vw] md:w-[calc(20%-16px)]{% endif %}">
+                    {% include 'partials/product.html' with card_size=section.card_size %}
                 </div>
                 {% empty %}
                 <div class="py-10 text-center text-gray-400 w-full">No products found for this section.</div>
@@ -85,10 +86,15 @@
             </div>
         </div>
         {% else %}
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
+        <!-- Dynamic Grid Columns and Gaps -->
+        <div class="grid gap-y-12
+            {% if section.card_size == 'large' %}grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8
+            {% elif section.card_size == 'medium' %}grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6
+            {% else %}grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-4{% endif %}">
+            
             {% for product in section.filtered_products %}
-                {% include 'partials/product.html' with large_card=True %}
-{% empty %}
+                {% include 'partials/product.html' with card_size=section.card_size %}
+            {% empty %}
             <div class="col-span-full py-10 text-center text-gray-400">
                 <p>No products found for this section.</p>
             </div>
@@ -97,9 +103,6 @@
         {% endif %}
     </div>
 </section>
-
-{# Optional editorial categories can be placed between sections if needed, but for now we follow the user's "show after each other" request. #}
-{# We'll keep the editorial categories below the main sections loop for now. #}
 {% endfor %}
 
 <!-- 4. EDITORIAL CATEGORIES -->

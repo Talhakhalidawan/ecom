@@ -2,7 +2,7 @@
 <div class="text-left font-sans group">
     
     <!-- Image Wrapper -->
-    <div class="relative aspect-[3/4] bg-gray-100 {% if large_card %}mb-6{% else %}mb-4{% endif %} overflow-hidden group/image">
+    <div class="relative aspect-[3/4] bg-gray-100 {% if card_size == 'large' %}mb-6{% elif card_size == 'medium' %}mb-4{% else %}mb-3{% endif %} overflow-hidden group/image">
         <a href="{% url 'products:detail' product.slug %}" class="block w-full h-full">
             {% if product.get_main_image %}
                 <img src="{{ product.get_main_image.file.url }}" alt="{{ product.name }}" loading="lazy" 
@@ -15,12 +15,12 @@
         
         <!-- Badges -->
         {% if product.sale_price or product.is_new_arrival %}
-        <div class="absolute top-4 left-4 flex gap-2 z-10">
+        <div class="absolute top-2.5 left-2.5 flex gap-1.5 z-10">
             {% if product.is_new_arrival %}
-                <span class="bg-theme_primary text-white text-[9px] tracking-[2px] uppercase px-3 py-1.5 shadow-sm">New Arrival</span>
+                <span class="bg-theme_primary text-white {% if card_size == 'small' %}text-[8px] px-1.5 py-0.5{% else %}text-[9px] px-2.5 py-1{% endif %} tracking-widest uppercase shadow-sm">New</span>
             {% endif %}
             {% if product.sale_price %}
-                <span class="bg-theme_accent text-white text-[9px] tracking-[2px] uppercase px-3 py-1.5 shadow-sm">Special Offer</span>
+                <span class="bg-theme_accent text-white {% if card_size == 'small' %}text-[8px] px-1.5 py-0.5{% else %}text-[9px] px-2.5 py-1{% endif %} tracking-widest uppercase shadow-sm">Sale</span>
             {% endif %}
         </div>
         {% endif %}
@@ -31,29 +31,29 @@
                 {% csrf_token %}
                 <input type="hidden" name="product_id" value="{{ product.id }}">
                 <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="w-full py-5 bg-white/95 backdrop-blur-sm border-t border-gray-100 font-sans text-[11px] tracking-[2.5px] uppercase text-theme_primary transition-all duration-300 hover:bg-theme_primary hover:text-white font-medium">
-                    Add to Collection
+                <button type="submit" class="w-full {% if card_size == 'large' %}py-5 text-[11px]{% elif card_size == 'medium' %}py-4 text-[10px]{% else %}py-3 text-[9px]{% endif %} bg-white/95 backdrop-blur-sm border-t border-gray-100 font-sans tracking-[2px] uppercase text-theme_primary transition-all duration-300 hover:bg-theme_primary hover:text-white font-medium">
+                    Add to Cart
                 </button>
             </form>
         </div>
     </div>
 
     <!-- Product Info -->
-    <div class="{% if large_card %}px-2 pt-2{% else %}px-1.5 pt-1{% endif %}">
-        <span class="block {% if large_card %}text-[12px]{% else %}text-[11px]{% endif %} tracking-[2px] uppercase text-theme_primary/50 mb-2 font-medium">
+    <div class="{% if card_size == 'large' %}px-2 pt-2{% elif card_size == 'medium' %}px-1.5 pt-1{% else %}px-1 pt-0.5{% endif %}">
+        <span class="block {% if card_size == 'large' %}text-[12px] mb-2{% elif card_size == 'medium' %}text-[11px] mb-1.5{% else %}text-[10px] mb-1{% endif %} tracking-[2px] uppercase text-theme_primary/50 font-medium">
             {{ product.brand.name|default:"Luxe Perfume" }}
         </span>
         
-        <h3 class="font-serif {% if large_card %}text-xl md:text-2xl{% else %}text-lg{% endif %} font-normal mb-2 leading-tight">
+        <h3 class="font-serif {% if card_size == 'large' %}text-xl md:text-2xl mb-2{% elif card_size == 'medium' %}text-lg mb-1.5{% else %}text-base mb-1{% endif %} font-normal leading-tight">
             <a href="{% url 'products:detail' product.slug %}" class="text-theme_primary transition-colors duration-500 hover:text-theme_accent line-clamp-1">
                 {{ product.name }}
             </a>
         </h3>
         
-        <div class="{% if large_card %}text-lg md:text-xl{% else %}text-sm{% endif %} text-theme_primary font-serif">
+        <div class="{% if card_size == 'large' %}text-lg md:text-xl{% elif card_size == 'medium' %}text-base{% else %}text-sm{% endif %} text-theme_primary font-serif">
             {% if product.sale_price %}
                 <span>${{ product.sale_price }}</span>
-                <span class="{% if large_card %}text-base{% else %}text-[13px]{% endif %} text-gray-300 line-through ml-3">${{ product.base_price }}</span>
+                <span class="{% if card_size == 'large' %}text-base{% elif card_size == 'medium' %}text-sm{% else %}text-[12px]{% endif %} text-gray-300 line-through ml-2.5">${{ product.base_price }}</span>
             {% else %}
                 <span>${{ product.base_price }}</span>
             {% endif %}

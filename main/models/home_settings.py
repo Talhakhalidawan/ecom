@@ -43,8 +43,20 @@ class ProductSection(models.Model):
         ('carousel', 'Carousel'),
         ('grid', 'Grid'),
     )
+    SIZE_CHOICES = (
+        ('small', 'Small'),
+        ('medium', 'Medium'),
+        ('large', 'Large'),
+    )
+    WIDTH_CHOICES = (
+        ('standard', 'Standard (1280px)'),
+        ('wide', 'Wide (1400px)'),
+        ('full', 'Full Width'),
+    )
     title = models.CharField(max_length=255)
     display_type = models.CharField(max_length=10, choices=DISPLAY_CHOICES, default='carousel')
+    card_size = models.CharField(max_length=10, choices=SIZE_CHOICES, default='medium')
+    container_width = models.CharField(max_length=10, choices=WIDTH_CHOICES, default='wide')
     # Dynamic filtering
     search_query = models.CharField(max_length=255, blank=True, null=True, help_text="e.g. category=Floral&gender=men")
     max_products = models.PositiveIntegerField(default=10)
