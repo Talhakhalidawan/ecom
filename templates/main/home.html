@@ -61,8 +61,8 @@
     </div>
 </section>
 
-<!-- 3. PRODUCT CAROUSEL SECTIONS -->
-{% for section in carousel_sections %}
+<!-- 3. PRODUCT SECTIONS (Carousel or Grid) -->
+{% for section in sections %}
 <section class="py-20 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
@@ -72,17 +72,34 @@
             {% endif %}
         </div>
 
+        {% if section.display_type == 'carousel' %}
         <div class="relative w-full">
             <div class="flex overflow-x-auto gap-5 pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track">
-                {% for product in section.products.all %}
+                {% for product in section.filtered_products %}
                 <div class="w-[280px] md:w-[calc(25%-15px)] flex-shrink-0 snap-start">
                     {% include 'partials/product.html' %}
                 </div>
+                {% empty %}
+                <div class="py-10 text-center text-gray-400 w-full">No products found for this section.</div>
                 {% endfor %}
             </div>
         </div>
+        {% else %}
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+            {% for product in section.filtered_products %}
+                {% include 'partials/product.html' %}
+            {% empty %}
+            <div class="col-span-full py-10 text-center text-gray-400">
+                <p>No products found for this section.</p>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
 </section>
+
+{# Optional editorial categories can be placed between sections if needed, but for now we follow the user's "show after each other" request. #}
+{# We'll keep the editorial categories below the main sections loop for now. #}
 {% endfor %}
 
 <!-- 4. EDITORIAL CATEGORIES -->
@@ -103,30 +120,6 @@
     </div>
 </section>
 {% endif %}
-
-<!-- 5. PRODUCTS GRID SECTION -->
-{% for section in grid_sections %}
-<section class="py-16 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
-            <h2 class="font-serif text-3xl md:text-4xl m-0">{{ section.title }}</h2>
-            {% if section.query_url %}
-            <a href="{{ section.query_url }}" class="text-[13px] tracking-[1px] uppercase text-gray-500 hover:text-theme_primary transition">View All</a>
-            {% endif %}
-        </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
-            {% for product in section.products.all %}
-                {% include 'partials/product.html' %}
-            {% empty %}
-            <div class="col-span-full py-10 text-center text-gray-500">
-                <p>New collections arriving soon.</p>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endfor %}
 
 <!-- 6. PROMOTIONAL BANNER -->
 {% if home_settings and home_settings.banner_big_image %}

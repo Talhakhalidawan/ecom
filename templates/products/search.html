@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-12 bg-gray-50 min-h-screen">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Breadcrumbs & Header -->
+        <div class="mb-10">
+            <nav class="flex mb-4 text-xs tracking-widest uppercase text-gray-400">
+                <a href="/" class="hover:text-theme_primary transition">Home</a>
+                <span class="mx-2">/</span>
+                <span class="text-gray-600">Search Results</span>
+            </nav>
+            <h1 class="font-serif text-3xl md:text-4xl text-theme_primary">
+                {% if query %}Results for "{{ query }}"{% else %}Discover All Fragrances{% endif %}
+                <span class="text-sm font-sans font-light text-gray-400 ml-3">({{ products.count }} Items)</span>
+            </h1>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-10">
+            <!-- Sidebar Filters -->
+            <aside class="w-full lg:w-64 flex-shrink-0">
+                <form method="GET" action="{% url 'products:search' %}" id="filterForm" class="space-y-8">
+                    <!-- Carry over search query -->
+                    <input type="hidden" name="q" value="{{ query }}">
+
+                    <!-- Sorting (Mobile visible) -->
+                    <div class="lg:hidden mb-6">
+                        <label class="block text-[11px] tracking-widest uppercase text-gray-500 mb-2">Sort By</label>
+                        <select name="sort" onchange="this.form.submit()" class="w-full bg-white border border-gray-200 py-3 px-4 text-sm focus:outline-none focus:border-theme_primary transition">
+                            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Newest First</option>
+                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        </select>
+                    </div>
+
+                    <!-- Category Filter -->
+                    <div>
+                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Category</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="category" value="" {% if not current_category %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if not current_category %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if not current_category %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if not current_category %}font-medium text-theme_primary{% endif %}">All Categories</span>
+                            </label>
+                            {% for cat in all_categories %}
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="category" value="{{ cat }}" {% if current_category == cat %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_category == cat %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_category == cat %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_category == cat %}font-medium text-theme_primary{% endif %}">{{ cat }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Experience Filter (Gender) -->
+                    <div>
+                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Experience</h3>
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="gender" value="" {% if not current_gender %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if not current_gender %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if not current_gender %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if not current_gender %}font-medium text-theme_primary{% endif %}">All Experiences</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="gender" value="men" {% if current_gender == 'men' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'men' %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'men' %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'men' %}font-medium text-theme_primary{% endif %}">Men</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="gender" value="women" {% if current_gender == 'women' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'women' %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'women' %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'women' %}font-medium text-theme_primary{% endif %}">Women</span>
+                            </label>
+                            <label class="flex items-center gap-3 cursor-pointer group">
+                                <input type="radio" name="gender" value="unisex" {% if current_gender == 'unisex' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
+                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'unisex' %}border-theme_primary bg-theme_primary{% endif %}">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'unisex' %}opacity-100{% else %}opacity-0{% endif %}"></span>
+                                </span>
+                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'unisex' %}font-medium text-theme_primary{% endif %}">Unisex</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Size Filter -->
+                    <div>
+                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Format</h3>
+                        <div class="grid grid-cols-2 gap-2">
+                            {% for size in all_sizes %}
+                            <label class="relative cursor-pointer group">
+                                <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                                <div class="py-2 px-3 text-center border border-gray-200 text-[12px] transition-all peer-checked:bg-theme_primary peer-checked:text-white peer-checked:border-theme_primary group-hover:border-theme_primary">
+                                    {{ size.name }}
+                                </div>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Filter -->
+                    <div>
+                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Price Range</h3>
+                        <div class="flex items-center gap-4">
+                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-white border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:border-theme_primary transition">
+                            <span class="text-gray-300">-</span>
+                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-white border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:border-theme_primary transition">
+                        </div>
+                        <button type="submit" class="w-full mt-4 py-2 bg-theme_primary text-white text-[10px] tracking-widest uppercase hover:bg-black transition">Apply Price</button>
+                    </div>
+
+                    <!-- Reset -->
+                    <a href="{% url 'products:search' %}{% if query %}?q={{ query }}{% endif %}" class="block text-center text-[11px] text-gray-400 tracking-widest uppercase hover:text-theme_primary transition underline underline-offset-4">Reset All Filters</a>
+                </form>
+            </aside>
+
+            <!-- Results Grid -->
+            <div class="flex-grow">
+                <!-- Toolbar -->
+                <div class="hidden lg:flex justify-end mb-8 border-b border-gray-100 pb-5">
+                    <div class="flex items-center gap-4">
+                        <span class="text-[11px] tracking-widest uppercase text-gray-400">Sort By:</span>
+                        <select form="filterForm" name="sort" onchange="this.form.submit()" class="bg-transparent text-[13px] font-medium text-gray-700 focus:outline-none cursor-pointer">
+                            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Newest First</option>
+                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                        </select>
+                    </div>
+                </div>
+
+                {% if products %}
+                <div class="grid grid-cols-2 lg:grid-cols-3 gap-x-5 gap-y-12">
+                    {% for product in products %}
+                        {% include 'partials/product.html' %}
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="py-24 text-center">
+                    <div class="text-6xl mb-6 opacity-20">奢</div>
+                    <h3 class="font-serif text-2xl text-gray-400 mb-2">No Fragrances Found</h3>
+                    <p class="text-gray-400 font-light max-w-sm mx-auto">We couldn't find any products matching your specific selection. Try broadening your criteria or reset filters.</p>
+                    <a href="{% url 'products:search' %}" class="inline-block mt-8 text-[12px] tracking-[2px] uppercase border-b border-theme_primary pb-1 text-theme_primary">Explore the full collection</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

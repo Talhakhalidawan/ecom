@@ -45,9 +45,11 @@ class ProductSection(models.Model):
     )
     title = models.CharField(max_length=255)
     display_type = models.CharField(max_length=10, choices=DISPLAY_CHOICES, default='carousel')
-    query_url = models.URLField(blank=True, null=True, help_text="Link for the 'View All' button")
+    # Dynamic filtering
+    search_query = models.CharField(max_length=255, blank=True, null=True, help_text="e.g. category=Floral&gender=men")
+    max_products = models.PositiveIntegerField(default=10)
     
-    # Notice we link to the 'products' app you just created
+    # Keep ManyToMany for manual selection as optional override
     products = models.ManyToManyField('products.Product', blank=True, related_name='home_sections')
     
     display_order = models.PositiveIntegerField(default=0)

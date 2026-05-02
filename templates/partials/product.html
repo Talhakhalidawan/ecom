@@ -3,7 +3,7 @@
     
     <!-- Image Wrapper (Handles hover states for image zoom and quick add button) -->
     <div class="relative aspect-[3/4] bg-gray-100 mb-4 overflow-hidden group/image">
-        <a href="{% url 'products:product_detail' product.slug %}" class="block w-full h-full">
+        <a href="{% url 'products:detail' product.slug %}" class="block w-full h-full">
             {% if product.get_main_image %}
                 <img src="{{ product.get_main_image.image.url }}" alt="{{ product.name }}" loading="lazy" 
                      class="w-full h-full object-cover transition-transform duration-500 group-hover/image:scale-[1.03]">
@@ -45,7 +45,7 @@
         </span>
         
         <h3 class="font-serif text-lg font-normal mb-2">
-            <a href="{% url 'products:product_detail' product.slug %}" class="text-theme_primary transition-colors duration-300 hover:text-theme_accent line-clamp-1">
+            <a href="{% url 'products:detail' product.slug %}" class="text-theme_primary transition-colors duration-300 hover:text-theme_accent line-clamp-1">
                 {{ product.name }}
             </a>
         </h3>

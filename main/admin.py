@@ -21,10 +21,10 @@ class StoreFeatureAdmin(admin.ModelAdmin):
 
 @admin.register(ProductSection)
 class ProductSectionAdmin(admin.ModelAdmin):
-    list_display = ('title', 'display_type', 'display_order', 'is_active')
+    list_display = ('title', 'display_type', 'search_query', 'max_products', 'display_order', 'is_active')
     list_filter = ('display_type', 'is_active')
     list_editable = ('display_order', 'is_active')
-    filter_horizontal = ('products',) # Makes the ManyToMany product selection interface much cleaner
+    filter_horizontal = ('products',)
 
 @admin.register(HomeCategory)
 class HomeCategoryAdmin(admin.ModelAdmin):

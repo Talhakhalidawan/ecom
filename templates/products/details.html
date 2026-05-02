@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex flex-col lg:flex-row gap-16">
+            <!-- Product Images -->
+            <div class="w-full lg:w-1/2 space-y-4">
+                <div class="aspect-[4/5] bg-gray-50 overflow-hidden">
+                    {% if product.get_main_image %}
+                    <img src="{{ product.get_main_image.file.url }}" alt="{{ product.name }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=800" alt="Placeholder" class="w-full h-full object-cover">
+                    {% endif %}
+                </div>
+                <!-- Gallery would go here -->
+            </div>
+
+            <!-- Product Info -->
+            <div class="w-full lg:w-1/2">
+                <nav class="flex mb-6 text-[10px] tracking-widest uppercase text-gray-400">
+                    <a href="/">Home</a>
+                    <span class="mx-2">/</span>
+                    <a href="{% url 'products:search' %}?category={{ product.category }}">{{ product.category }}</a>
+                </nav>
+
+                <h1 class="font-serif text-4xl md:text-5xl text-theme_primary mb-4">{{ product.name }}</h1>
+                <p class="text-[13px] tracking-[2px] uppercase text-gray-500 mb-8">{{ product.concentration|default:"Eau de Parfum" }}</p>
+
+                <div class="text-2xl text-theme_primary mb-10">
+                    {% if product.sale_price %}
+                        <span>${{ product.sale_price }}</span>
+                        <span class="text-lg text-gray-400 line-through ml-4">${{ product.base_price }}</span>
+                    {% else %}
+                        <span>${{ product.base_price }}</span>
+                    {% endif %}
+                </div>
+
+                <div class="prose prose-sm text-gray-600 mb-12">
+                    <p>{{ product.description|linebreaksbr }}</p>
+                </div>
+
+                <!-- Sizes Selector -->
+                {% if product.sizes.exists %}
+                <div class="mb-10">
+                    <h3 class="text-[11px] tracking-widest uppercase text-gray-900 mb-4">Available Formats</h3>
+                    <div class="flex flex-wrap gap-3">
+                        {% for size in product.sizes.all %}
+                        <div class="px-5 py-3 border border-gray-200 text-xs tracking-widest uppercase text-theme_primary">
+                            {{ size.name }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Notes / Scent Profile -->
+                {% if product.top_notes or product.heart_notes or product.base_notes %}
+                <div class="mb-12 grid grid-cols-1 md:grid-cols-3 gap-8 py-8 border-y border-gray-100">
+                    {% if product.top_notes %}
+                    <div>
+                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Top Notes</h4>
+                        <p class="text-sm text-gray-800">{{ product.top_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if product.heart_notes %}
+                    <div>
+                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Heart Notes</h4>
+                        <p class="text-sm text-gray-800">{{ product.heart_notes }}</p>
+                    </div>
+                    {% endif %}
+                    {% if product.base_notes %}
+                    <div>
+                        <h4 class="text-[10px] tracking-widest uppercase text-gray-400 mb-2">Base Notes</h4>
+                        <p class="text-sm text-gray-800">{{ product.base_notes }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- CTA -->
+                <button class="w-full py-5 bg-theme_primary text-white text-[13px] tracking-widest uppercase hover:bg-black transition duration-300">
+                    Add to Collection
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

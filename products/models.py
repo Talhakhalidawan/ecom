@@ -4,6 +4,31 @@ from django.utils.text import slugify
 from django.urls import reverse
 from django.core.validators import MinValueValidator, MaxValueValidator
 
+SIZE_CHOICES = [
+    (5, '5ml (Sample)'),
+    (10, '10ml (Travel Size)'),
+    (15, '15ml'),
+    (30, '30ml'),
+    (50, '50ml'),
+    (75, '75ml'),
+    (90, '90ml'),
+    (100, '100ml'),
+    (125, '125ml'),
+    (150, '150ml'),
+    (200, '200ml'),
+    (250, '250ml'),
+]
+
+class Size(models.Model):
+    name = models.CharField(max_length=50)
+    value = models.PositiveIntegerField(choices=SIZE_CHOICES, default=100)
+
+    def __str__(self):
+        return f"{self.name} ({self.value}ml)"
+
+    class Meta:
+        ordering = ['value']
+
 class Product(models.Model):
     GENDER_CHOICES = [
         ('men', 'Men'),
@@ -18,22 +43,6 @@ class Product(models.Model):
         ('edp', 'Eau de Parfum (EDP)'),
         ('parfum', 'Extrait de Parfum'),
         ('oil', 'Perfume Oil / Attar'),
-    ]
-
-    # Comprehensive Perfume Sizes
-    SIZE_CHOICES = [
-        (5, '5ml (Sample)'),
-        (10, '10ml (Travel Size)'),
-        (15, '15ml'),
-        (30, '30ml'),
-        (50, '50ml'),
-        (75, '75ml'),
-        (90, '90ml'),
-        (100, '100ml'),
-        (125, '125ml'),
-        (150, '150ml'),
-        (200, '200ml'),
-        (250, '250ml'),
     ]
 
     PERFUME_CATEGORY_SUGGESTIONS = [
@@ -52,7 +61,6 @@ class Product(models.Model):
     # Core Details
     name = models.CharField(max_length=255)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
-    sku = models.CharField(max_length=50, unique=True)
     short_description = models.CharField(max_length=255)
     description = models.TextField()
     category = models.CharField(max_length=100, db_index=True)
@@ -60,12 +68,7 @@ class Product(models.Model):
     # Perfume DNA
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='unisex')
     concentration = models.CharField(max_length=15, choices=CONCENTRATION_CHOICES, default='edp')
-    size_ml = models.PositiveIntegerField(choices=SIZE_CHOICES, default=100)
-    
-    # Scent Profile
-    top_notes = models.CharField(max_length=255, blank=True)
-    heart_notes = models.CharField(max_length=255, blank=True)
-    base_notes = models.CharField(max_length=255, blank=True)
+    sizes = models.ManyToManyField(Size, related_name='products')
     
     # Pricing & Inventory
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -90,11 +93,11 @@ class Product(models.Model):
     
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(f"{self.name} {self.get_size_ml_display()}")
+            self.slug = slugify(self.name)
         super().save(*args, **kwargs)
     
     def __str__(self):
-        return f"{self.name} - {self.get_size_ml_display()}"
+        return self.name
     
     @property
     def current_price(self):
@@ -107,6 +110,13 @@ class Product(models.Model):
     @property
     def is_low_stock(self):
         return 0 < self.stock_quantity <= self.low_stock_threshold
+
+    @property
+    def get_main_image(self):
+        main_img = self.media.filter(media_type='image', is_main=True).first()
+        if not main_img:
+            main_img = self.media.filter(media_type='image').first()
+        return main_img
 
 class ProductMedia(models.Model):
     MEDIA_TYPES = [
