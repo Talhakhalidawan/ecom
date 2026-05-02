@@ -20,11 +20,10 @@ SIZE_CHOICES = [
 ]
 
 class Size(models.Model):
-    name = models.CharField(max_length=50)
     value = models.PositiveIntegerField(choices=SIZE_CHOICES, default=100)
 
     def __str__(self):
-        return f"{self.name} ({self.value}ml)"
+        return f"{self.value}ml"
 
     class Meta:
         ordering = ['value']

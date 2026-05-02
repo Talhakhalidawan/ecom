@@ -51,10 +51,10 @@
 {% for section in sections %}
 <section class="py-20 bg-white">
     <!-- Dynamic Container Width -->
-    <div class="mx-auto px-4 sm:px-6 lg:px-8 
+    <div class="mx-auto px-4 
         {% if section.container_width == 'standard' %}max-w-7xl
         {% elif section.container_width == 'wide' %}max-w-[1400px]
-        {% elif section.container_width == 'full' %}max-w-full px-4 md:px-10
+        {% elif section.container_width == 'full' %}max-w-full md:px-10
         {% else %}max-w-[1400px]{% endif %}">
         
         <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
@@ -66,18 +66,23 @@
 
         {% if section.display_type == 'carousel' %}
         <div class="relative w-full">
-            <!-- Dynamic Carousel Spacing -->
             <div class="flex overflow-x-auto pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track
-                {% if section.card_size == 'large' %}gap-8
-                {% elif section.card_size == 'medium' %}gap-6
-                {% else %}gap-4{% endif %}">
+                {% if section.card_size == 'large' %}gap-5 md:gap-8
+                {% elif section.card_size == 'medium' %}gap-4 md:gap-6
+                {% else %}gap-3 md:gap-4{% endif %}">
                 
                 {% for product in section.filtered_products %}
-                <!-- Dynamic Carousel Item Width -->
-                <div class="flex-shrink-0 snap-center
-                    {% if section.card_size == 'large' %}w-[85vw] md:w-[calc(33.333%-22px)]
-                    {% elif section.card_size == 'medium' %}w-[80vw] md:w-[calc(25%-18px)]
-                    {% else %}w-[70vw] md:w-[calc(20%-16px)]{% endif %}">
+                <!-- Dynamic Carousel Item Width with Mobile Override -->
+                <div class="flex-shrink-0 snap-start
+                    {% if section.card_size == 'large' %}
+                        w-full md:w-[calc(33.333%-20px)]
+                    {% elif section.card_size == 'medium' %}
+                        w-[calc(50%-10px)] md:w-[calc(25%-18px)]
+                        {% if section.container_width == 'full' %}lg:w-[calc(20%-20px)]{% endif %}
+                    {% else %}
+                        w-[calc(50%-10px)] md:w-[calc(20%-15px)]
+                        {% if section.container_width == 'full' %}lg:w-[calc(16.666%-20px)]{% endif %}
+                    {% endif %}">
                     {% include 'partials/product.html' with card_size=section.card_size %}
                 </div>
                 {% empty %}
@@ -86,11 +91,18 @@
             </div>
         </div>
         {% else %}
-        <!-- Dynamic Grid Columns and Gaps -->
-        <div class="grid gap-y-12
-            {% if section.card_size == 'large' %}grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8
-            {% elif section.card_size == 'medium' %}grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6
-            {% else %}grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-x-4{% endif %}">
+        <!-- Dynamic Grid with Consistent Sizing -->
+        <div class="grid 
+            {% if section.card_size == 'large' %}
+                grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-16
+                {% if section.container_width == 'full' %}xl:grid-cols-4{% endif %}
+            {% elif section.card_size == 'medium' %}
+                grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12
+                {% if section.container_width == 'full' %}xl:grid-cols-5{% endif %}
+            {% else %}
+                grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-10
+                {% if section.container_width == 'full' %}xl:grid-cols-6{% endif %}
+            {% endif %}">
             
             {% for product in section.filtered_products %}
                 {% include 'partials/product.html' with card_size=section.card_size %}
@@ -107,7 +119,7 @@
 
 <!-- 4. EDITORIAL CATEGORIES -->
 {% if home_categories %}
-<section class="py-16">
+<section class="py-2">
     <div class="max-w-[1400px] mx-auto px-0 md:px-4">
         <div class="flex overflow-x-auto gap-4 md:gap-8 px-4 md:px-0 snap-x snap-mandatory no-scrollbar categories-track">
             {% for category in home_categories %}

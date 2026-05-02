@@ -5,7 +5,7 @@ from .models import Product, Size, ProductMedia, Review
 
 @admin.register(Size)
 class SizeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'value')
+    list_display = ('value',)
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):

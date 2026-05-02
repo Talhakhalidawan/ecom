@@ -23,7 +23,7 @@ class StoreFeatureAdmin(admin.ModelAdmin):
 class ProductSectionAdmin(admin.ModelAdmin):
     list_display = ('title', 'display_type', 'card_size', 'container_width', 'display_order', 'is_active')
     list_filter = ('display_type', 'card_size', 'container_width', 'is_active')
-    list_editable = ('display_order', 'is_active', 'card_size', 'container_width')
+    list_editable = ('display_type', 'display_order', 'is_active', 'card_size', 'container_width')
     search_fields = ('title',)
     filter_horizontal = ('products',)
 
