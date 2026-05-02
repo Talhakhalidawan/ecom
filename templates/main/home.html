@@ -64,7 +64,7 @@
 <!-- 3. PRODUCT SECTIONS (Carousel or Grid) -->
 {% for section in sections %}
 <section class="py-20 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
             <h2 class="font-serif text-3xl md:text-4xl m-0">{{ section.title }}</h2>
             {% if section.query_url %}
@@ -74,10 +74,10 @@
 
         {% if section.display_type == 'carousel' %}
         <div class="relative w-full">
-            <div class="flex overflow-x-auto gap-5 pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track">
+            <div class="flex overflow-x-auto gap-5 md:gap-6 pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track">
                 {% for product in section.filtered_products %}
-                <div class="w-[280px] md:w-[calc(25%-15px)] flex-shrink-0 snap-start">
-                    {% include 'partials/product.html' %}
+                <div class="w-[80vw] md:w-[calc(25%-18px)] flex-shrink-0 snap-center">
+                    {% include 'partials/product.html' with large_card=True %}
                 </div>
                 {% empty %}
                 <div class="py-10 text-center text-gray-400 w-full">No products found for this section.</div>
@@ -85,10 +85,10 @@
             </div>
         </div>
         {% else %}
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-6 gap-y-12">
             {% for product in section.filtered_products %}
-                {% include 'partials/product.html' %}
-            {% empty %}
+                {% include 'partials/product.html' with large_card=True %}
+{% empty %}
             <div class="col-span-full py-10 text-center text-gray-400">
                 <p>No products found for this section.</p>
             </div>
