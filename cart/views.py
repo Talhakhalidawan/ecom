@@ -86,7 +86,16 @@ def update_cart(request, item_id):
 
 @require_POST
 def remove_from_cart(request, item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart=get_cart(request))
+    cart = get_cart(request)
+    cart_item = get_object_or_404(CartItem, id=item_id, cart=cart)
     cart_item.delete()
+    
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'success',
+            'cart_count': cart.total_items_count,
+            'cart_total': cart.total_price
+        })
+
     messages.info(request, "Item removed from your collection.")
     return redirect('cart:cart_detail')
