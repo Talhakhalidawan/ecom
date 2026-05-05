@@ -70,3 +70,9 @@ class SiteSettingsAdmin(admin.ModelAdmin):
     list_display = ('name', 'primary_color', 'secondary_color', 'bg_color')
     list_editable = ('primary_color', 'secondary_color', 'bg_color')
     list_display_links = ('name',)
+
+@admin.register(HomePageOrder)
+class HomePageOrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'display_order', 'section_type', 'product_section', 'is_active')
+    list_editable = ('display_order', 'section_type', 'product_section', 'is_active')
+    ordering = ('display_order',)

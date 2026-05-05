@@ -175,3 +175,34 @@ class FAQItem(models.Model):
 
     def __str__(self):
         return self.question
+
+
+class HomePageOrder(models.Model):
+    """
+    Unified ordering layer for all homepage sections.
+    """
+    BLOCK_TYPES = (
+        ('hero', 'Hero Carousel'),
+        ('features', 'Features Bar'),
+        ('products', 'Product Section'),
+        ('categories', 'Editorial Categories'),
+        ('banner', 'Promotional Banner'),
+        ('reviews', 'Reviews Carousel'),
+        ('faq', 'FAQ Section'),
+    )
+    section_type = models.CharField(max_length=20, choices=BLOCK_TYPES)
+    # Only used if section_type is 'products'
+    product_section = models.ForeignKey(ProductSection, on_delete=models.SET_NULL, blank=True, null=True, help_text="Select if type is Product Section")
+    
+    display_order = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True)
+
+    class Meta:
+        ordering = ['display_order']
+        verbose_name = "Homepage Section Order"
+        verbose_name_plural = "Homepage Section Ordering"
+
+    def __str__(self):
+        if self.section_type == 'products' and self.product_section:
+            return f"Order {self.display_order}: {self.product_section.title} (Products)"
+        return f"Order {self.display_order}: {self.get_section_type_display()}"

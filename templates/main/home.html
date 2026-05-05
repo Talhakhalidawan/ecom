@@ -2,226 +2,230 @@
 
 {% block content %}
 
-<!-- 1. HERO SECTION -->
-{% if hero_items %}
-<section class="relative w-full h-[85vh] min-h-[500px] bg-gray-50">
-    <div class="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar" id="heroTrack">
-        {% for item in hero_items %}
-        <div class="w-full h-full flex-shrink-0 snap-center relative">
-            <a href="{{ item.link|default:'#' }}" class="block w-full h-full">
-                <picture>
-                    <source media="(max-width: 768px)" srcset="{{ item.small_image.url }}">
-                    <img src="{{ item.big_image.url }}" alt="Luxe Perfume Hero" class="w-full h-full object-cover block" draggable="false">
-                </picture>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-
-    {% if hero_items.count > 1 %}
-    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10 hero-dots">
-        {% for item in hero_items %}
-        <span class="w-2.5 h-2.5 rounded-full bg-white/40 border border-black/10 cursor-pointer transition-all duration-300 dot {% if forloop.first %}bg-white scale-125 shadow-md{% endif %}" data-index="{{ forloop.counter0 }}"></span>
-        {% endfor %}
-    </div>
-    {% endif %}
-</section>
-{% else %}
-<section class="relative h-[85vh] min-h-[600px] bg-cover bg-center flex items-center justify-center text-center" style="background-image: url('https://images.unsplash.com/photo-1615634260167-c8cdede054de?w=1920');">
-</section>
-{% endif %}
-
-<!-- 2. FEATURES MINIMAL -->
-<section class="border-b border-gray-100 py-5 bg-white">
-    <div class="max-w-7xl mx-auto px-4">
-        <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-10">
-            {% for feature in store_features %}
-            <div class="text-center">
-                <span class="text-[11px] tracking-[1.5px] text-gray-700 uppercase">{{ feature.text }}</span>
-            </div>
-            {% if not forloop.last %}
-            <div class="hidden md:block w-1 h-1 bg-theme_accent rounded-full"></div>
-            {% endif %}
-            {% endfor %}
-        </div>
-    </div>
-</section>
-
-<!-- 3. PRODUCT SECTIONS (Carousel or Grid) -->
-{% for section in sections %}
-<section class="py-20 bg-white">
-    <!-- Dynamic Container Width -->
-    <div class="mx-auto px-4 
-        {% if section.container_width == 'standard' %}max-w-7xl
-        {% elif section.container_width == 'wide' %}max-w-[1400px]
-        {% elif section.container_width == 'full' %}max-w-full md:px-10
-        {% else %}max-w-[1400px]{% endif %}">
-        
-        <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
-            <h2 class="font-serif text-3xl md:text-4xl m-0">{{ section.title }}</h2>
-            {% if section.query_url %}
-            <a href="{{ section.query_url }}" class="text-[13px] tracking-[1px] uppercase text-gray-500 hover:text-theme_primary transition">View All</a>
-            {% endif %}
-        </div>
-
-        {% if section.display_type == 'carousel' %}
-        <div class="relative w-full">
-            <div class="flex overflow-x-auto pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track
-                {% if section.card_size == 'large' %}gap-5 md:gap-8
-                {% elif section.card_size == 'medium' %}gap-4 md:gap-6
-                {% else %}gap-3 md:gap-4{% endif %}">
-                
-                {% for product in section.filtered_products %}
-                <!-- Dynamic Carousel Item Width with Mobile Override -->
-                <div class="flex-shrink-0 snap-start
-                    {% if section.card_size == 'large' %}
-                        w-full md:w-[calc(33.333%-20px)]
-                    {% elif section.card_size == 'medium' %}
-                        w-[calc(50%-10px)] md:w-[calc(25%-18px)]
-                        {% if section.container_width == 'full' %}lg:w-[calc(20%-20px)]{% endif %}
-                    {% else %}
-                        w-[calc(50%-10px)] md:w-[calc(20%-15px)]
-                        {% if section.container_width == 'full' %}lg:w-[calc(16.666%-20px)]{% endif %}
-                    {% endif %}">
-                    {% include 'partials/product.html' with card_size=section.card_size %}
+{% for block in blocks %}
+    {% if block.type == 'hero' %}
+        <!-- 1. HERO SECTION -->
+        {% if hero_items %}
+        <section class="relative w-full h-[85vh] min-h-[500px] bg-gray-50">
+            <div class="flex w-full h-full overflow-x-auto snap-x snap-mandatory no-scrollbar" id="heroTrack">
+                {% for item in hero_items %}
+                <div class="w-full h-full flex-shrink-0 snap-center relative">
+                    <a href="{{ item.link|default:'#' }}" class="block w-full h-full">
+                        <picture>
+                            <source media="(max-width: 768px)" srcset="{{ item.small_image.url }}">
+                            <img src="{{ item.big_image.url }}" alt="Luxe Perfume Hero" class="w-full h-full object-cover block" draggable="false">
+                        </picture>
+                    </a>
                 </div>
-                {% empty %}
-                <div class="py-10 text-center text-gray-400 w-full">No products found for this section.</div>
                 {% endfor %}
             </div>
-        </div>
-        {% else %}
-        <!-- Dynamic Grid with Consistent Sizing -->
-        <div class="grid 
-            {% if section.card_size == 'large' %}
-                grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-16
-                {% if section.container_width == 'full' %}xl:grid-cols-4{% endif %}
-            {% elif section.card_size == 'medium' %}
-                grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12
-                {% if section.container_width == 'full' %}xl:grid-cols-5{% endif %}
-            {% else %}
-                grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-10
-                {% if section.container_width == 'full' %}xl:grid-cols-6{% endif %}
-            {% endif %}">
-            
-            {% for product in section.filtered_products %}
-                {% include 'partials/product.html' with card_size=section.card_size %}
-            {% empty %}
-            <div class="col-span-full py-10 text-center text-gray-400">
-                <p>No products found for this section.</p>
+
+            {% if hero_items.count > 1 %}
+            <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex gap-3 z-10 hero-dots">
+                {% for item in hero_items %}
+                <span class="w-2.5 h-2.5 rounded-full bg-white/40 border border-black/10 cursor-pointer transition-all duration-300 dot {% if forloop.first %}bg-white scale-125 shadow-md{% endif %}" data-index="{{ forloop.counter0 }}"></span>
+                {% endfor %}
             </div>
-            {% endfor %}
-        </div>
-        {% endif %}
-    </div>
-</section>
-{% endfor %}
-
-<!-- 4. EDITORIAL CATEGORIES -->
-{% if home_categories %}
-<section class="py-2">
-    <div class="max-w-[1400px] mx-auto px-0 md:px-4">
-        <div class="flex overflow-x-auto gap-4 md:gap-8 px-4 md:px-0 snap-x snap-mandatory no-scrollbar categories-track">
-            {% for category in home_categories %}
-            <a href="{{ category.link }}" class="relative overflow-hidden aspect-[4/5] w-[80vw] md:w-[calc(33.333%-20px)] flex-shrink-0 snap-center group block">
-                <img src="{{ category.image.url }}" alt="{{ category.title }}" loading="lazy" draggable="false" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
-                <div class="absolute bottom-8 left-0 w-full text-center text-white z-10">
-                    <h3 class="font-serif text-[32px] font-normal mb-1 text-white drop-shadow-md">{{ category.title }}</h3>
-                    <span class="text-xs tracking-[1.5px] uppercase border-b border-white pb-1 drop-shadow-sm">{{ category.bottom_text }}</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
-
-<!-- 6. PROMOTIONAL BANNER -->
-{% if home_settings and home_settings.banner_big_image %}
-<section class="w-full mt-20">
-    <a href="{{ home_settings.banner_link|default:'#' }}" class="block w-full">
-        <picture>
-            {% if home_settings.banner_small_image %}
-            <source media="(max-width: 768px)" srcset="{{ home_settings.banner_small_image.url }}">
             {% endif %}
-            <img src="{{ home_settings.banner_big_image.url }}" alt="Promotional Banner" class="w-full h-auto block object-cover">
-        </picture>
-    </a>
-</section>
-{% endif %}
+        </section>
+        {% endif %}
 
-<!-- 7. REVIEWS SECTION -->
-{% if home_reviews %}
-<section class="py-20 bg-gray-50 overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
-        <div class="flex justify-center mb-4">
-            <h2 class="font-serif text-3xl md:text-4xl text-center">What Our Clients Say</h2>
-        </div>
-    </div>
+    {% elif block.type == 'features' %}
+        <!-- 2. FEATURES MINIMAL -->
+        {% if store_features %}
+        <section class="border-b border-gray-100 py-5 bg-white">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-center items-center gap-4 md:gap-10">
+                    {% for feature in store_features %}
+                    <div class="text-center">
+                        <span class="text-[11px] tracking-[1.5px] text-gray-700 uppercase">{{ feature.text }}</span>
+                    </div>
+                    {% if not forloop.last %}
+                    <div class="hidden md:block w-1 h-1 bg-theme_accent rounded-full"></div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
 
-    <div class="relative w-full py-10">
-        <!-- Viewport padding math converted to Tailwind arbitrary values -->
-        <div class="flex items-center gap-5 md:gap-8 px-[calc(50vw-140px)] md:px-[calc(50vw-190px)] snap-x snap-mandatory no-scrollbar" id="reviewsTrack">
-            {% for review in home_reviews %}
-            <div class="review-slide w-[280px] md:w-[380px] flex-shrink-0 snap-center opacity-40 scale-90 cursor-grab">
-                <div class="bg-white p-8 md:p-10 shadow-[0_8px_24px_rgba(0,0,0,0.04)] border border-black/[0.03] rounded text-center">
-                    <div class="text-theme_primary text-base mb-6 tracking-[3px]">
-                        {% for i in "12345" %}
-                            {% if forloop.counter <= review.get_rating %}★{% else %}☆{% endif %}
+    {% elif block.type == 'products' %}
+        <!-- 3. PRODUCT SECTIONS -->
+        {% with section=block.section %}
+        <section class="py-20 bg-white">
+            <div class="mx-auto px-4 
+                {% if section.container_width == 'standard' %}max-w-7xl
+                {% elif section.container_width == 'wide' %}max-w-[1400px]
+                {% elif section.container_width == 'full' %}max-w-full md:px-10
+                {% else %}max-w-[1400px]{% endif %}">
+                
+                <div class="flex justify-between items-end mb-10 pb-5 border-b border-theme_primary">
+                    <h2 class="font-serif text-3xl md:text-4xl m-0">{{ section.title }}</h2>
+                    {% if section.query_url %}
+                    <a href="{{ section.query_url }}" class="text-[13px] tracking-[1px] uppercase text-gray-500 hover:text-theme_primary transition">View All</a>
+                    {% endif %}
+                </div>
+
+                {% if section.display_type == 'carousel' %}
+                <div class="relative w-full">
+                    <div class="flex overflow-x-auto pb-5 snap-x snap-mandatory no-scrollbar product-carousel-track
+                        {% if section.card_size == 'large' %}gap-5 md:gap-8
+                        {% elif section.card_size == 'medium' %}gap-4 md:gap-6
+                        {% else %}gap-3 md:gap-4{% endif %}">
+                        
+                        {% for product in section.filtered_products %}
+                        <div class="flex-shrink-0 snap-start
+                            {% if section.card_size == 'large' %}
+                                w-full md:w-[calc(33.333%-20px)]
+                            {% elif section.card_size == 'medium' %}
+                                w-[calc(50%-10px)] md:w-[calc(25%-18px)]
+                                {% if section.container_width == 'full' %}lg:w-[calc(20%-20px)]{% endif %}
+                            {% else %}
+                                w-[calc(50%-10px)] md:w-[calc(20%-15px)]
+                                {% if section.container_width == 'full' %}lg:w-[calc(16.666%-20px)]{% endif %}
+                            {% endif %}">
+                            {% include 'partials/product.html' with card_size=section.card_size %}
+                        </div>
+                        {% empty %}
+                        <div class="py-10 text-center text-gray-400 w-full">No products found for this section.</div>
                         {% endfor %}
                     </div>
-                    <p class="font-serif italic text-base md:text-lg leading-relaxed text-gray-800 mb-8">"{{ review.get_text }}"</p>
-                    <div class="flex items-center justify-center gap-4">
-                        {% if review.custom_image %}
-                        <img src="{{ review.custom_image.url }}" alt="{{ review.get_username }}" class="w-11 h-11 rounded-full object-cover">
-                        {% else %}
-                        <div class="w-11 h-11 rounded-full bg-theme_primary text-white flex items-center justify-center font-serif text-lg">
-                            {{ review.get_username|make_list|first }}
-                        </div>
-                        {% endif %}
-                        <div class="text-left">
-                            <span class="block font-bold text-[13px] uppercase tracking-[1.5px]">{{ review.get_username }}</span>
-                            {% if review.custom_job_title %}
-                            <span class="block text-[10px] text-gray-500 uppercase tracking-[1px] mt-1">{{ review.custom_job_title }}</span>
-                            {% endif %}
-                        </div>
+                </div>
+                {% else %}
+                <div class="grid 
+                    {% if section.card_size == 'large' %}
+                        grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-16
+                        {% if section.container_width == 'full' %}xl:grid-cols-4{% endif %}
+                    {% elif section.card_size == 'medium' %}
+                        grid-cols-2 md:grid-cols-4 gap-x-6 gap-y-12
+                        {% if section.container_width == 'full' %}xl:grid-cols-5{% endif %}
+                    {% else %}
+                        grid-cols-2 md:grid-cols-5 gap-x-4 gap-y-10
+                        {% if section.container_width == 'full' %}xl:grid-cols-6{% endif %}
+                    {% endif %}">
+                    
+                    {% for product in section.filtered_products %}
+                        {% include 'partials/product.html' with card_size=section.card_size %}
+                    {% empty %}
+                    <div class="col-span-full py-10 text-center text-gray-400">
+                        <p>No products found for this section.</p>
                     </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        </section>
+        {% endwith %}
+
+    {% elif block.type == 'categories' %}
+        <!-- 4. EDITORIAL CATEGORIES -->
+        {% if home_categories %}
+        <section class="py-2">
+            <div class="max-w-[1400px] mx-auto px-0 md:px-4">
+                <div class="flex overflow-x-auto gap-4 md:gap-8 px-4 md:px-0 snap-x snap-mandatory no-scrollbar categories-track">
+                    {% for category in home_categories %}
+                    <a href="{{ category.link }}" class="relative overflow-hidden aspect-[4/5] w-[80vw] md:w-[calc(33.333%-20px)] flex-shrink-0 snap-center group block">
+                        <img src="{{ category.image.url }}" alt="{{ category.title }}" loading="lazy" draggable="false" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        <div class="absolute bottom-8 left-0 w-full text-center text-white z-10">
+                            <h3 class="font-serif text-[32px] font-normal mb-1 text-white drop-shadow-md">{{ category.title }}</h3>
+                            <span class="text-xs tracking-[1.5px] uppercase border-b border-white pb-1 drop-shadow-sm">{{ category.bottom_text }}</span>
+                        </div>
+                    </a>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
-        </div>
-    </div>
-</section>
-{% endif %}
+        </section>
+        {% endif %}
 
-<!-- 8. FAQ SECTION -->
-{% if faq_sections %}
-<section class="py-20 md:py-[100px] bg-white">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        {% for section in faq_sections %}
-        <div class="mb-16">
-            <h2 class="font-serif text-2xl md:text-[28px] text-center mb-10">{{ section.title }}</h2>
-            
-            <div class="border-t border-black/5">
-                {% for item in section.items.all %}
-                <div class="faq-item border-b border-black/5">
-                    <button class="faq-question w-full flex justify-between items-center py-6 md:py-8 text-left bg-transparent border-none cursor-pointer transition group">
-                        <span class="font-serif text-[17px] md:text-xl text-theme_primary pr-5">{{ item.question }}</span>
-                        <span class="faq-icon text-2xl font-light text-theme_accent transition-transform duration-400">+</span>
-                    </button>
-                    <div class="faq-answer max-h-0 overflow-hidden transition-[max-height] duration-400 ease-in-out">
-                        <div class="pb-8 text-[15px] leading-relaxed text-gray-600">
-                            <p>{{ item.answer|linebreaksbr }}</p>
+    {% elif block.type == 'banner' %}
+        <!-- 6. PROMOTIONAL BANNER -->
+        {% if home_settings and home_settings.banner_big_image %}
+        <section class="w-full mt-20">
+            <a href="{{ home_settings.banner_link|default:'#' }}" class="block w-full">
+                <picture>
+                    {% if home_settings.banner_small_image %}
+                    <source media="(max-width: 768px)" srcset="{{ home_settings.banner_small_image.url }}">
+                    {% endif %}
+                    <img src="{{ home_settings.banner_big_image.url }}" alt="Promotional Banner" class="w-full h-auto block object-cover">
+                </picture>
+            </a>
+        </section>
+        {% endif %}
+
+    {% elif block.type == 'reviews' %}
+        <!-- 7. REVIEWS SECTION -->
+        {% if home_reviews %}
+        <section class="py-20 bg-gray-50 overflow-hidden">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-6">
+                <div class="flex justify-center mb-4">
+                    <h2 class="font-serif text-3xl md:text-4xl text-center">What Our Clients Say</h2>
+                </div>
+            </div>
+
+            <div class="relative w-full py-10">
+                <div class="flex items-center gap-5 md:gap-8 px-[calc(50vw-140px)] md:px-[calc(50vw-190px)] snap-x snap-mandatory no-scrollbar" id="reviewsTrack">
+                    {% for review in home_reviews %}
+                    <div class="review-slide w-[280px] md:w-[380px] flex-shrink-0 snap-center opacity-40 scale-90 cursor-grab">
+                        <div class="bg-white p-8 md:p-10 shadow-[0_8px_24px_rgba(0,0,0,0.04)] border border-black/[0.03] rounded text-center">
+                            <div class="text-theme_primary text-base mb-6 tracking-[3px]">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.get_rating %}★{% else %}☆{% endif %}
+                                {% endfor %}
+                            </div>
+                            <p class="font-serif italic text-base md:text-lg leading-relaxed text-gray-800 mb-8">"{{ review.get_text }}"</p>
+                            <div class="flex items-center justify-center gap-4">
+                                {% if review.custom_image %}
+                                <img src="{{ review.custom_image.url }}" alt="{{ review.get_username }}" class="w-11 h-11 rounded-full object-cover">
+                                {% else %}
+                                <div class="w-11 h-11 rounded-full bg-theme_primary text-white flex items-center justify-center font-serif text-lg">
+                                    {{ review.get_username|make_list|first }}
+                                </div>
+                                {% endif %}
+                                <div class="text-left">
+                                    <span class="block font-bold text-[13px] uppercase tracking-[1.5px]">{{ review.get_username }}</span>
+                                    {% if review.custom_job_title %}
+                                    <span class="block text-[10px] text-gray-500 uppercase tracking-[1px] mt-1">{{ review.custom_job_title }}</span>
+                                    {% endif %}
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </section>
+        {% endif %}
+
+    {% elif block.type == 'faq' %}
+        <!-- 8. FAQ SECTION -->
+        {% if faq_sections %}
+        <section class="py-20 md:py-[100px] bg-white">
+            <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                {% for section in faq_sections %}
+                <div class="mb-16">
+                    <h2 class="font-serif text-2xl md:text-[28px] text-center mb-10">{{ section.title }}</h2>
+                    <div class="border-t border-black/5">
+                        {% for item in section.items.all %}
+                        <div class="faq-item border-b border-black/5">
+                            <button class="faq-question w-full flex justify-between items-center py-6 md:py-8 text-left bg-transparent border-none cursor-pointer transition group">
+                                <span class="font-serif text-[17px] md:text-xl text-theme_primary pr-5">{{ item.question }}</span>
+                                <span class="faq-icon text-2xl font-light text-theme_accent transition-transform duration-400">+</span>
+                            </button>
+                            <div class="faq-answer max-h-0 overflow-hidden transition-[max-height] duration-400 ease-in-out">
+                                <div class="pb-8 text-[15px] leading-relaxed text-gray-600">
+                                    <p>{{ item.answer|linebreaksbr }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
                     </div>
                 </div>
                 {% endfor %}
             </div>
-        </div>
-        {% endfor %}
-    </div>
-</section>
-{% endif %}
+        </section>
+        {% endif %}
+    {% endif %}
+{% endfor %}
 
 
 <!-- Javascript remains identical except hooked to proper IDs/Classes -->
