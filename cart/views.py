@@ -28,12 +28,15 @@ def add_to_cart(request, product_id):
         cart=cart,
         product=product,
         size=size,
-        defaults={'quantity': quantity}
+        defaults={'quantity': 0}
     )
     
-    if not created:
-        cart_item.quantity += quantity
-        cart_item.save()
+    new_quantity = cart_item.quantity + quantity
+    if new_quantity > product.stock_quantity:
+        new_quantity = product.stock_quantity
+    
+    cart_item.quantity = new_quantity
+    cart_item.save()
     
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
@@ -57,7 +60,11 @@ def update_cart(request, item_id):
             cart_item.save()
         else:
             if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-                return JsonResponse({'status': 'error', 'message': 'Maximum stock reached.'})
+                return JsonResponse({
+                    'status': 'error', 
+                    'message': 'Maximum stock reached.',
+                    'is_max': True
+                })
             messages.warning(request, "Maximum stock reached for this item.")
     elif action == 'decrement':
         if cart_item.quantity > 1:
@@ -79,7 +86,9 @@ def update_cart(request, item_id):
             'quantity': cart_item.quantity,
             'line_total': cart_item.line_total,
             'cart_total': cart.total_price,
-            'cart_count': cart.total_items_count
+            'cart_count': cart.total_items_count,
+            'is_min': cart_item.quantity <= 1,
+            'is_max': cart_item.quantity >= cart_item.product.stock_quantity
         })
 
     return redirect('cart:cart_detail')

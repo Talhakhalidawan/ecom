@@ -132,7 +132,32 @@ document.addEventListener('DOMContentLoaded', function() {
                         const total = document.querySelector('#cartTotalDisplay');
                         if (subtotal) subtotal.textContent = '$' + data.cart_total;
                         if (total) total.textContent = '$' + data.cart_total;
+                        
+                        // Disable/Enable buttons
+                        const minusBtn = form.querySelector('button[value="decrement"]');
+                        const plusBtn = form.querySelector('button[value="increment"]');
+                        
+                        if (data.is_min) {
+                            minusBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                            minusBtn.disabled = true;
+                        } else {
+                            minusBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                            minusBtn.disabled = false;
+                        }
+                        
+                        if (data.is_max) {
+                            plusBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                            plusBtn.disabled = true;
+                        } else {
+                            plusBtn.classList.remove('opacity-30', 'cursor-not-allowed');
+                            plusBtn.disabled = false;
+                        }
                     } else {
+                        if (data.is_max) {
+                            const plusBtn = form.querySelector('button[value="increment"]');
+                            plusBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                            plusBtn.disabled = true;
+                        }
                         alert(data.message);
                     }
                 });
@@ -176,6 +201,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+
+    // Initialize Stepper States on Load
+    function initializeCartSteppers() {
+        document.querySelectorAll('.update-qty-form').forEach(form => {
+            const qtySpan = form.querySelector('.item-qty-display');
+            if (!qtySpan) return;
+            
+            const qty = parseInt(qtySpan.textContent || 1);
+            const max = parseInt(form.dataset.maxStock || 999);
+            const minusBtn = form.querySelector('button[value="decrement"]');
+            const plusBtn = form.querySelector('button[value="increment"]');
+
+            if (minusBtn && qty <= 1) {
+                minusBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                minusBtn.disabled = true;
+            }
+            if (plusBtn && qty >= max) {
+                plusBtn.classList.add('opacity-30', 'cursor-not-allowed');
+                plusBtn.disabled = true;
+            }
+        });
+    }
+    initializeCartSteppers();
 
     // Modal Logic
     function showDeleteModal(name, onConfirm) {

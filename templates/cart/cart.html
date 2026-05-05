@@ -35,7 +35,7 @@
 
                         <!-- Quantity Stepper -->
                         <div class="flex items-center border border-gray-200 h-12 w-32">
-                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="h-full w-full flex update-qty-form">
+                            <form action="{% url 'cart:update_cart' item.id %}" method="post" class="h-full w-full flex update-qty-form" data-max-stock="{{ item.product.stock_quantity }}">
                                 {% csrf_token %}
                                 <button name="action" value="decrement" type="submit" class="w-10 h-full flex items-center justify-center hover:bg-gray-50 transition text-xs"><i class="fas fa-minus"></i></button>
                                 <span class="flex-grow flex items-center justify-center text-sm font-medium border-x border-gray-200 item-qty-display">{{ item.quantity }}</span>
