@@ -27,7 +27,7 @@
         
         <!-- Hover Actions -->
         <div class="absolute bottom-0 left-0 w-full translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) group-hover/image:translate-y-0 z-20">
-            <form action="" method="post">
+            <form action="{% url 'cart:add_to_cart' product.id %}" method="post" data-ajax-cart>
                 {% csrf_token %}
                 <input type="hidden" name="product_id" value="{{ product.id }}">
                 <input type="hidden" name="quantity" value="1">

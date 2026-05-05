@@ -91,13 +91,17 @@
                             <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Concentration</span>
                             <span class="text-[13px] text-theme_primary font-medium uppercase">{{ product.get_concentration_display|default:"Eau de Parfum" }}</span>
                         </div>
-                        <div class="flex flex-col gap-1">
-                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Formats</span>
-                            <div class="flex flex-wrap gap-2 pt-1">
+                        <div class="flex flex-col gap-3">
+                            <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Select Format</span>
+                            <div class="flex flex-wrap gap-3" id="sizePicker">
                                 {% for size in product.sizes.all %}
-                                <span class="bg-gray-50 border border-gray-200 text-[9px] tracking-[1px] px-2 py-1 uppercase text-gray-500">{{ size.name }}</span>
+                                <button type="button" onclick="selectSize('{{ size.id }}', this)" 
+                                        class="size-option border border-gray-200 px-6 py-2.5 text-[11px] tracking-[1.5px] uppercase transition-all duration-300 hover:border-black
+                                        {% if forloop.first %}is-selected border-black bg-black text-white{% else %}text-gray-500{% endif %}">
+                                    {{ size }}
+                                </button>
                                 {% empty %}
-                                <span class="text-[13px] text-theme_primary font-medium">Standard</span>
+                                <span class="text-[13px] text-theme_primary font-medium">Standard Edition</span>
                                 {% endfor %}
                             </div>
                         </div>
@@ -111,9 +115,9 @@
 
                     <!-- Add to Cart Form -->
                     {% if product.stock_quantity > 0 %}
-                    <form action="" method="post" class="space-y-8">
+                    <form action="{% url 'cart:add_to_cart' product.id %}" method="post" class="space-y-8" data-ajax-cart>
                         {% csrf_token %}
-                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <input type="hidden" name="size" id="selectedSize" value="{% if product.sizes.exists %}{{ product.sizes.first.id }}{% endif %}">
                         
                         <div class="flex flex-col sm:flex-row gap-4">
                             <!-- Quantity -->
@@ -125,7 +129,7 @@
                             
                             <!-- Submit -->
                             <button type="submit" class="flex-grow h-16 bg-theme_primary text-white text-[12px] tracking-[3px] uppercase hover:bg-black transition-all duration-300 font-medium px-10 shadow-lg shadow-theme_primary/10">
-                                Add to Collection
+                                Add to Cart
                             </button>
                         </div>
                     </form>
@@ -454,6 +458,15 @@
                 if (!hover) s.classList.remove('text-theme_primary');
             }
         });
+    }
+    function selectSize(id, el) {
+        document.getElementById('selectedSize').value = id;
+        document.querySelectorAll('.size-option').forEach(btn => {
+            btn.classList.remove('is-selected', 'border-black', 'bg-black', 'text-white');
+            btn.classList.add('text-gray-500', 'border-gray-200');
+        });
+        el.classList.add('is-selected', 'border-black', 'bg-black', 'text-white');
+        el.classList.remove('text-gray-500', 'border-gray-200');
     }
 </script>
 {% endblock %}
