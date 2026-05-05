@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function() {
             e.preventDefault();
             const form = e.target;
             const formData = new FormData(form);
-            const url = form.action;
+            const url = form.getAttribute('action');
             const submitBtn = form.querySelector('button[type="submit"]');
             const originalBtnText = submitBtn.innerHTML;
 
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const action = btn.value;
                 const formData = new FormData(form);
                 formData.append('action', action);
-                const url = form.action;
+                const url = form.getAttribute('action');
 
                 fetch(url, {
                     method: 'POST',
@@ -149,7 +149,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 showDeleteModal(productName, () => {
                    const formData = new FormData(form);
-                   fetch(form.action, {
+                   fetch(form.getAttribute('action'), {
                        method: 'POST',
                        body: formData,
                        headers: {
