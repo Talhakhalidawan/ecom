@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block title %}Sign In | {{ platform_settings.title|default:'Luxe Perfume' }}{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+        
+        <!-- Left Side: Dynamic Image (Desktop Only) -->
+        {% if auth_settings.login_image %}
+        <div class="hidden md:block md:w-1/2 bg-gray-100">
+            <img src="{{ auth_settings.login_image.url }}" alt="Login Visual" class="w-full h-full object-cover">
+        </div>
+        {% endif %}
+
+        <!-- Right Side: Form -->
+        <div class="w-full {% if auth_settings.login_image %}md:w-1/2{% else %}max-w-md mx-auto{% endif %} p-8 md:p-12 flex flex-col justify-center">
+            
+            <div class="mb-10 text-center md:text-left">
+                <h2 class="text-3xl font-serif text-theme_primary mb-2">Welcome Back</h2>
+                <p class="text-gray-500 font-light">Return to your luxury collection.</p>
+            </div>
+
+            {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium {% if message.tags == 'success' %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-6">
+                {% csrf_token %}
+                
+                <div>
+                    <label for="id_username" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                    <input type="email" name="username" id="id_username" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-theme_accent focus:ring-1 focus:ring-theme_accent transition-all outline-none"
+                           placeholder="your@email.com">
+                </div>
+
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                    <input type="password" name="password" id="id_password" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-theme_accent focus:ring-1 focus:ring-theme_accent transition-all outline-none"
+                           placeholder="••••••••">
+                </div>
+
+                <button type="submit" 
+                        class="w-full bg-theme_primary text-white py-4 rounded-xl font-bold tracking-widest hover:bg-black transition-all transform active:scale-[0.98]">
+                    SIGN IN
+                </button>
+            </form>
+
+            <div class="mt-10 text-center md:text-left pt-6 border-t border-gray-100">
+                <p class="text-gray-600">New to Luxe? 
+                    <a href="{% url 'users:signup' %}" class="text-theme_accent font-bold hover:underline">Create Account</a>
+                </p>
+            </div>
+
+            {% if auth_settings.terms_link or auth_settings.privacy_policy_link %}
+            <div class="mt-8 text-xs text-gray-400 text-center md:text-left leading-relaxed">
+                By signing in, you agree to our 
+                {% if auth_settings.terms_link %}<a href="{{ auth_settings.terms_link }}" class="underline">Terms</a>{% endif %}
+                {% if auth_settings.terms_link and auth_settings.privacy_policy_link %} and {% endif %}
+                {% if auth_settings.privacy_policy_link %}<a href="{{ auth_settings.privacy_policy_link }}" class="underline">Privacy Policy</a>{% endif %}.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+{% endblock %}

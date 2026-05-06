@@ -68,12 +68,14 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'main.context_processors.site_context',
                 'cart.context_processors.cart_count',
                 'wishlist.context_processors.wishlist_contents',
+                'users.context_processors.auth_settings_context',
             ],
         },
     },

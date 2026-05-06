@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Create Account | {{ platform_settings.title|default:'Luxe Perfume' }}{% endblock %}
+
+{% block content %}
+<div class="min-h-[80vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl w-full bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col md:flex-row">
+        
+        <!-- Left Side: Dynamic Image (Desktop Only) -->
+        {% if auth_settings.signup_image %}
+        <div class="hidden md:block md:w-1/2 bg-gray-100">
+            <img src="{{ auth_settings.signup_image.url }}" alt="Join Luxe" class="w-full h-full object-cover">
+        </div>
+        {% endif %}
+
+        <!-- Right Side: Form -->
+        <div class="w-full {% if auth_settings.signup_image %}md:w-1/2{% else %}max-w-md mx-auto{% endif %} p-8 md:p-12 flex flex-col justify-center">
+            
+            <div class="mb-10 text-center md:text-left">
+                <h2 class="text-3xl font-serif text-theme_primary mb-2">Join Our Collection</h2>
+                <p class="text-gray-500 font-light">Experience luxury at your doorstep.</p>
+            </div>
+
+            {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for message in messages %}
+                <div class="p-4 rounded-xl text-sm font-medium {% if message.tags == 'success' %}bg-green-50 text-green-700{% else %}bg-red-50 text-red-700{% endif %}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <form method="POST" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label for="id_first_name" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div>
+                        <label for="id_last_name" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+
+                <div>
+                    <label for="id_email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                    <input type="email" name="email" id="id_email" required
+                           class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-theme_accent focus:ring-1 focus:ring-theme_accent transition-all outline-none"
+                           placeholder="your@email.com">
+                </div>
+
+                <div>
+                    <label for="id_phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number (Optional)</label>
+                    {{ form.phone }}
+                </div>
+
+                <div>
+                    <label for="id_password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                    {{ form.password1 }}
+                </div>
+                
+                <div>
+                    <label for="id_password_confirm" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                    {{ form.password2 }}
+                </div>
+
+                <div class="pt-4">
+                    <button type="submit" 
+                            class="w-full bg-theme_primary text-white py-4 rounded-xl font-bold tracking-widest hover:bg-black transition-all transform active:scale-[0.98]">
+                        CREATE ACCOUNT
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-10 text-center md:text-left pt-6 border-t border-gray-100">
+                <p class="text-gray-600">Already a member? 
+                    <a href="{% url 'users:login' %}" class="text-theme_accent font-bold hover:underline">Sign In</a>
+                </p>
+            </div>
+
+            {% if auth_settings.terms_link or auth_settings.privacy_policy_link %}
+            <div class="mt-8 text-xs text-gray-400 text-center md:text-left leading-relaxed">
+                By creating an account, you agree to our 
+                {% if auth_settings.terms_link %}<a href="{{ auth_settings.terms_link }}" class="underline">Terms</a>{% endif %}
+                {% if auth_settings.terms_link and auth_settings.privacy_policy_link %} and {% endif %}
+                {% if auth_settings.privacy_policy_link %}<a href="{{ auth_settings.privacy_policy_link }}" class="underline">Privacy Policy</a>{% endif %}.
+            </div>
+            {% endif %}
+        </div>
+
+    </div>
+</div>
+
+<!-- Helper Styles to inject Tailwind classes into Django Widget inputs -->
+<style>
+    input:not([type="checkbox"]):not([type="radio"]) {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border-radius: 0.75rem;
+        border: 1px solid #e5e7eb;
+        outline: none;
+        transition: all 0.2s;
+    }
+    input:focus {
+        border-color: #b08d57;
+        box-shadow: 0 0 0 1px #b08d57;
+    }
+</style>
+{% endblock %}
