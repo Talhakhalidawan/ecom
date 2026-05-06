@@ -6,7 +6,7 @@ from .forms import SignUpForm
 
 def login_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('main:home')
     
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
@@ -17,7 +17,7 @@ def login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f"Welcome back, {user.first_name or user.username}!")
-                return redirect('home')
+                return redirect('main:home')
             else:
                 messages.error(request, "Invalid email or password.")
         else:
@@ -29,7 +29,7 @@ def login_view(request):
 
 def signup_view(request):
     if request.user.is_authenticated:
-        return redirect('home')
+        return redirect('main:home')
         
     if request.method == 'POST':
         form = SignUpForm(request.POST)
@@ -37,7 +37,7 @@ def signup_view(request):
             user = form.save()
             login(request, user)
             messages.success(request, "Registration successful. Welcome to E-COM!")
-            return redirect('home')
+            return redirect('main:home')
         else:
             for error in form.errors.values():
                 messages.error(request, error)
@@ -49,4 +49,4 @@ def signup_view(request):
 def logout_view(request):
     logout(request)
     messages.info(request, "You have been logged out.")
-    return redirect('home')
+    return redirect('main:home')

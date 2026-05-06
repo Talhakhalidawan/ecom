@@ -21,7 +21,7 @@ def add_to_cart(request, product_id):
                 'message': 'Please sign in to add items to your cart.'
             }, status=401)
         messages.info(request, "Please sign in to add items to your cart.")
-        return redirect('/')
+        return redirect('users:login')
 
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.POST.get('quantity', 1))
