@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block title %}Your Wishlist - Luxe Perfume{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-white min-h-[70vh]">
+    <div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="font-serif text-4xl md:text-5xl text-theme_primary mb-16 text-center">Your Wishlist</h1>
+
+        {% if wishlist.items.exists %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10" id="wishlistContainer">
+            {% for item in wishlist.items.all %}
+            <div class="wishlist-item-row group animate-in fade-in slide-in-from-bottom-5 duration-700" data-item-id="{{ item.id }}">
+                <div class="relative aspect-[3/4] bg-gray-100 overflow-hidden mb-6">
+                    <a href="{% url 'products:detail' item.product.slug %}" class="block w-full h-full">
+                        {% if item.product.get_main_image %}
+                            <img src="{{ item.product.get_main_image.file.url }}" alt="{{ item.product.name }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105">
+                        {% else %}
+                            <img src="https://images.unsplash.com/photo-1541643600914-78b084683601?w=600" class="w-full h-full object-cover">
+                        {% endif %}
+                    </a>
+                    
+                    <!-- Remove Button -->
+                    <form action="{% url 'wishlist:remove_from_wishlist' item.id %}" method="post" class="absolute top-4 right-4 z-10 remove-wishlist-form">
+                        {% csrf_token %}
+                        <button type="submit" class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-gray-400 hover:text-red-500 shadow-md transition-all duration-300">
+                            <i class="fas fa-times text-sm"></i>
+                        </button>
+                    </form>
+
+                    <!-- Quick Add to Cart -->
+                    <div class="absolute bottom-0 left-0 w-full translate-y-full transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1) group-hover:translate-y-0 z-20">
+                        <form action="{% url 'cart:add_to_cart' item.product.id %}" method="post" data-ajax-cart>
+                            {% csrf_token %}
+                            <input type="hidden" name="quantity" value="1">
+                            {% if item.size %}
+                                <input type="hidden" name="size" value="{{ item.size.id }}">
+                            {% endif %}
+                            <button type="submit" class="w-full py-4 bg-black text-white text-[10px] tracking-[2px] uppercase font-medium hover:bg-theme_accent transition-colors">
+                                Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="text-center sm:text-left">
+                    <span class="block text-[10px] tracking-[2px] uppercase text-theme_primary/50 mb-1">{{ item.product.category }}</span>
+                    <h3 class="font-serif text-xl text-theme_primary mb-2">
+                        <a href="{% url 'products:detail' item.product.slug %}" class="hover:text-theme_accent transition-colors">{{ item.product.name }}</a>
+                    </h3>
+                    <div class="text-theme_primary font-serif">
+                        {% if item.product.sale_price %}
+                            <span>${{ item.product.sale_price }}</span>
+                            <span class="text-sm text-gray-300 line-through ml-2.5">${{ item.product.base_price }}</span>
+                        {% else %}
+                            <span>${{ item.product.base_price }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <!-- Empty State -->
+        <div class="text-center py-20">
+            <div class="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-10">
+                <i class="far fa-heart text-gray-200 text-3xl"></i>
+            </div>
+            <h2 class="font-serif text-3xl text-theme_primary mb-6">Your wishlist is empty</h2>
+            <p class="text-gray-400 font-light mb-10 max-w-sm mx-auto">Save your favorite olfactory discoveries here to revisit them later.</p>
+            <a href="{% url 'products:search' %}" class="inline-block bg-theme_primary text-white text-[11px] tracking-[3px] uppercase py-5 px-12 hover:bg-black transition-all duration-500 shadow-lg shadow-theme_primary/10">
+                Continue Discovering
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

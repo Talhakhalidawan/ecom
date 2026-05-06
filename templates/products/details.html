@@ -141,14 +141,15 @@
 
                     <!-- Secondary Actions -->
                     <div class="flex items-center justify-center lg:justify-start gap-10 mt-10">
-                        <button class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
-                            <i class="far fa-heart"></i>
-                            <span>Add to Wishlist</span>
-                        </button>
-                        <button onclick="window.print()" class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
-                            <i class="fas fa-print"></i>
-                            <span>Print</span>
-                        </button>
+                        <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="post" data-ajax-wishlist class="wishlist-detail-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="size" class="wishlist-size-input" value="{% if product.sizes.exists %}{{ product.sizes.first.id }}{% endif %}">
+                            <button type="submit" class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
+                                <i class="far fa-heart"></i>
+                                <span>Add to Wishlist</span>
+                            </button>
+                        </form>
+                        
                         <button onclick="copyLink()" class="flex items-center gap-3 text-[11px] tracking-[1.5px] uppercase text-gray-500 hover:text-theme_primary transition">
                             <i class="fas fa-share-alt"></i>
                             <span>Share</span>
@@ -506,6 +507,9 @@
     }
     function selectSize(id, el) {
         document.getElementById('selectedSize').value = id;
+        const wishlistSizeInput = document.querySelector('.wishlist-size-input');
+        if (wishlistSizeInput) wishlistSizeInput.value = id;
+        
         document.querySelectorAll('.size-option').forEach(btn => {
             btn.classList.remove('is-selected', 'border-black', 'bg-black', 'text-white');
             btn.classList.add('text-gray-500', 'border-gray-200');

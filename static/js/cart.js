@@ -254,4 +254,93 @@ document.addEventListener('DOMContentLoaded', function() {
         cancelBtn.onclick = closeModal;
         modal.onclick = (e) => { if(e.target === modal) closeModal(); };
     }
+
+    // --- Wishlist AJAX Handlers ---
+    
+    // Intercept Add to Wishlist forms
+    document.addEventListener('submit', function(e) {
+        if (e.target.hasAttribute('data-ajax-wishlist')) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const url = form.getAttribute('action');
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const heartIcon = submitBtn.querySelector('i.fa-heart');
+            
+            submitBtn.disabled = true;
+            
+            fetch(url, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                if (data.status === 'success') {
+                    // Update icon to filled heart
+                    if (heartIcon) {
+                        heartIcon.classList.remove('far');
+                        heartIcon.classList.add('fas', 'text-red-500');
+                    }
+                    // Optional: Show a subtle notification
+                    console.log(data.message);
+                } else {
+                    alert(data.message || 'Error updating wishlist');
+                }
+            })
+            .catch(error => {
+                submitBtn.disabled = false;
+                console.error('Wishlist Error:', error);
+            });
+        }
+    });
+
+    // Handle Wishlist Removal in Wishlist Page
+    const wishlistContainer = document.querySelector('#wishlistContainer');
+    if (wishlistContainer) {
+        wishlistContainer.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('remove-wishlist-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const formData = new FormData(form);
+                const url = form.getAttribute('action');
+                const row = form.closest('.wishlist-item-row');
+
+                row.style.opacity = '0.5';
+                
+                fetch(url, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        row.style.opacity = '0';
+                        row.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            row.remove();
+                            if (document.querySelectorAll('.wishlist-item-row').length === 0) {
+                                location.reload(); // Show empty state
+                            }
+                        }, 400);
+                    } else {
+                        row.style.opacity = '1';
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    row.style.opacity = '1';
+                    console.error('Wishlist Remove Error:', error);
+                });
+            }
+        });
+    }
 });
