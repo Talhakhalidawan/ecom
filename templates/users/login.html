@@ -3,13 +3,12 @@
 {% block title %}Sign In | {{ platform_settings.title|default:'Luxe Perfume' }}{% endblock %}
 
 {% block content %}
-<div class="flex flex-col align-center justify-center md:flex-row bg-white">
+<div class="flex flex-col items-center justify-center md:flex-row bg-white">
     
     <!-- Sidebar Image Section -->
     <div class="hidden md:block relative w-1/2 lg:w-[45%] h-screen sticky top-0 overflow-hidden {% if not auth_settings.login_image %}bg-gray-50{% endif %}">
         {% if auth_settings.login_image %}
             <img src="{{ auth_settings.login_image.url }}" alt="Login Visual" class="w-full h-full object-cover grayscale-[20%] hover:grayscale-0 transition-all duration-1000">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
         {% else %}
             <div class="w-full h-full flex items-center justify-center p-12 text-center">
                 <div class="max-w-xs">
