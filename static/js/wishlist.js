@@ -5,6 +5,23 @@
 document.addEventListener('DOMContentLoaded', function() {
     console.log('Wishlist System Initialized');
 
+    function updateNavbarWishlistCount(count) {
+        const badges = document.querySelectorAll('.wishlist-count-badge');
+        badges.forEach(badge => {
+            if (count > 0) {
+                badge.textContent = count;
+                badge.classList.remove('hidden');
+                // If the badge didn't exist in DOM (because count was 0), we might need to handle that.
+                // But normally we'll have it hidden or with 0.
+            } else {
+                badge.classList.add('hidden');
+            }
+        });
+        
+        // If badge doesn't exist at all (server didn't render it), we may need to inject it.
+        // For simplicity, I'll ensure it's always in navbar.html even if 0 but hidden.
+    }
+
     // 1. Unified Submit Handler for Adding to Wishlist
     document.addEventListener('submit', function(e) {
         const form = e.target;
@@ -61,6 +78,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         btnText.textContent = 'ADD TO WISHLIST';
                     }
                 }
+
+                // Update Navbar Counter
+                if (data.wishlist_count !== undefined) {
+                    updateNavbarWishlistCount(data.wishlist_count);
+                }
             } else {
                 alert(data.message || 'Error updating wishlist');
                 if (submitBtn) submitBtn.disabled = false;
@@ -99,6 +121,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'success' && data.action === 'removed') {
+                    // Update Navbar Counter
+                    if (data.wishlist_count !== undefined) {
+                        updateNavbarWishlistCount(data.wishlist_count);
+                    }
+                    
                     if (row) {
                         row.style.opacity = '0';
                         row.style.transform = 'scale(0.95)';

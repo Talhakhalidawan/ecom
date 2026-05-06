@@ -9,5 +9,6 @@ def wishlist_contents(request):
     wishlist_product_ids = set(wishlist.items.values_list('product_id', flat=True))
     
     return {
-        'wishlist_product_ids': wishlist_product_ids
+        'wishlist_product_ids': wishlist_product_ids,
+        'wishlist_count': len(wishlist_product_ids)
     }

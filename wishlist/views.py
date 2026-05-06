@@ -37,7 +37,8 @@ def toggle_wishlist(request, product_id):
         return JsonResponse({
             'status': 'success',
             'action': action,
-            'message': message
+            'message': message,
+            'wishlist_count': wishlist.items.count()
         })
         
     messages.success(request, message)
