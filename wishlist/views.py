@@ -7,49 +7,38 @@ from .models import Wishlist, WishlistItem
 from .utils import get_wishlist
 
 def wishlist_detail(request):
+    """View to display the user's wishlist page."""
     wishlist = get_wishlist(request)
     return render(request, 'wishlist/wishlist.html', {'wishlist': wishlist})
 
 @require_POST
-def add_to_wishlist(request, product_id):
+def toggle_wishlist(request, product_id):
+    """
+    Unified toggler to add/remove products from wishlist.
+    Supports both traditional forms and AJAX requests.
+    """
     product = get_object_or_404(Product, id=product_id)
     size_id = request.POST.get('size')
-    size = None
-    if size_id:
-        size = get_object_or_404(Size, id=size_id)
+    size = Size.objects.filter(id=size_id).first() if size_id else None
     
     wishlist = get_wishlist(request)
-    item, created = WishlistItem.objects.get_or_create(
-        wishlist=wishlist,
-        product=product,
-        size=size
-    )
+    existing_items = WishlistItem.objects.filter(wishlist=wishlist, product=product)
     
-    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        return JsonResponse({
-            'status': 'success',
-            'message': f"{product.name} added to your wishlist.",
-            'is_new': created
-        })
-    
-    if created:
-        messages.success(request, f"{product.name} added to your wishlist.")
+    if existing_items.exists():
+        existing_items.delete()
+        action = 'removed'
+        message = f"{product.name} removed from your wishlist."
     else:
-        messages.info(request, f"{product.name} is already in your wishlist.")
+        WishlistItem.objects.create(wishlist=wishlist, product=product, size=size)
+        action = 'added'
+        message = f"{product.name} added to your wishlist."
         
-    return redirect('wishlist:wishlist_detail')
-
-@require_POST
-def remove_from_wishlist(request, item_id):
-    wishlist = get_wishlist(request)
-    item = get_object_or_404(WishlistItem, id=item_id, wishlist=wishlist)
-    item.delete()
-    
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'success',
-            'message': "Item removed from your wishlist."
+            'action': action,
+            'message': message
         })
         
-    messages.info(request, "Item removed from your wishlist.")
+    messages.success(request, message)
     return redirect('wishlist:wishlist_detail')

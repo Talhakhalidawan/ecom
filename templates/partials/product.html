@@ -25,10 +25,11 @@
             </div>
 
             <!-- Wishlist Button -->
-            <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="post" data-ajax-wishlist>
+            <form action="{% url 'wishlist:toggle_wishlist' product.id %}" method="post" data-ajax-wishlist>
                 {% csrf_token %}
-                <button type="submit" class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center text-gray-400 hover:text-red-500 transition-all duration-300 shadow-sm">
-                    <i class="far fa-heart text-xs"></i>
+                <button type="submit" class="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm flex items-center justify-center transition-all duration-300 shadow-sm
+                    {% if product.id in wishlist_product_ids %}text-red-500{% else %}text-gray-400{% endif %} hover:text-red-500">
+                    <i class="{% if product.id in wishlist_product_ids %}fas{% else %}far{% endif %} fa-heart {% if card_size == 'small' %}text-[10px]{% else %}text-xs{% endif %}"></i>
                 </button>
             </form>
         </div>

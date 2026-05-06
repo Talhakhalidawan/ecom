@@ -1,12 +1,11 @@
 from .models import Wishlist
 
 def get_wishlist(request):
+    """Retrieves or creates a wishlist for the current user or session."""
     if request.user.is_authenticated:
-        wishlist, created = Wishlist.objects.get_or_create(user=request.user)
+        wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
     else:
-        session_key = request.session.session_key
-        if not session_key:
+        if not request.session.session_key:
             request.session.create()
-            session_key = request.session.session_key
-        wishlist, created = Wishlist.objects.get_or_create(session_key=session_key)
+        wishlist, _ = Wishlist.objects.get_or_create(session_key=request.session.session_key)
     return wishlist
