@@ -19,6 +19,8 @@ class SignUpForm(UserCreationForm):
             self.fields['password1'].widget.attrs['placeholder'] = 'Create a secure password'
         if 'password2' in self.fields:
             self.fields['password2'].widget.attrs['placeholder'] = 'Confirm your password'
+
+    def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
             raise forms.ValidationError("A user with this email already exists.")
