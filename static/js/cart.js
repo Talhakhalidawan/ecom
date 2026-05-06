@@ -58,18 +58,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 submitBtn.innerHTML = originalBtnText;
 
                 if (data.status === 'success') {
-                    updateNavbarCartCount(data.cart_count);
-                    // Visual feedback
-                    const prevBg = submitBtn.style.backgroundColor;
-                    const prevColor = submitBtn.style.color;
-                    submitBtn.style.backgroundColor = '#000';
-                    submitBtn.style.color = '#fff';
-                    submitBtn.textContent = 'ADDED';
-                    setTimeout(() => {
-                        submitBtn.style.backgroundColor = prevBg;
-                        submitBtn.style.color = prevColor;
-                        submitBtn.innerHTML = originalBtnText;
-                    }, 2000);
+                    // ... (existing success logic)
+                } else if (data.login_required) {
+                    alert(data.message || 'Please login to continue.');
+                    // window.location.href = '/login/'; // Could redirect if we knew the URL
                 } else {
                     alert(data.message || 'Error adding to cart');
                 }

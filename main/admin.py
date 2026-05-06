@@ -1,6 +1,13 @@
 from django.contrib import admin
 from .models import *
 
+@admin.register(StaticPage)
+class StaticPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'slug', 'is_active', 'updated_at')
+    prepopulated_fields = {'slug': ('title',)}
+    list_filter = ('is_active',)
+    search_fields = ('title', 'content')
+
 @admin.register(HomeBanner)
 class HomeBannerAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):

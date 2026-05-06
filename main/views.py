@@ -1,8 +1,13 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import QueryDict
 from products.models import Product
 from main.models import HomeBanner
 from .models import *
+
+def static_page_detail(request, slug):
+    """View to display a dynamic static page by slug."""
+    page = get_object_or_404(StaticPage, slug=slug, is_active=True)
+    return render(request, 'main/static_page.html', {'page': page})
 
 def home(request):
     home_settings = HomeBanner.objects.first()

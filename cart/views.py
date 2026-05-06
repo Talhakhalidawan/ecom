@@ -13,6 +13,11 @@ from django.http import JsonResponse
 
 @require_POST
 def add_to_cart(request, product_id):
+    if not request.user.is_authenticated:
+        messages.info(request, "Please sign in to add items to your cart.")
+        return redirect('/')
+    
+
     product = get_object_or_404(Product, id=product_id)
     quantity = int(request.POST.get('quantity', 1))
     size_id = request.POST.get('size')

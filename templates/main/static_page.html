@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ page.title }} - Luxe Perfume{% endblock %}
+{% block meta_description %}{{ page.meta_description }}{% endblock %}
+
+{% block content %}
+<section class="py-20 bg-white">
+    <div class="max-w-[1000px] mx-auto px-4 sm:px-6 lg:px-8">
+        
+        <!-- Breadcrumbs -->
+        <nav class="flex mb-10 text-[10px] tracking-[2px] uppercase text-gray-400">
+            <a href="/" class="hover:text-black transition-colors">Home</a>
+            <span class="mx-3">/</span>
+            <span class="text-black">{{ page.title }}</span>
+        </nav>
+
+        <article class="prose prose-stone prose-lg max-w-none">
+            <div class="text-gray-600 leading-relaxed font-sans space-y-8">
+                {{ page.content|safe }}
+            </div>
+        </article>
+        
+        {% if page.updated_at %}
+        <div class="mt-20 pt-10 border-t border-gray-100 text-[10px] tracking-[1px] uppercase text-gray-400">
+            Last updated: {{ page.updated_at|date:"F d, Y" }}
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<style>
+    /* Premium Typography Overrides */
+    .prose h2 { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 2rem; margin-top: 3rem; margin-bottom: 1.5rem; color: #1a1a1a; }
+    .prose p { margin-bottom: 1.5rem; line-height: 1.8; }
+    .prose strong { color: #000; font-weight: 600; }
+    .prose ul { list-style-type: none; padding-left: 0; }
+    .prose li { position: relative; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+    .prose li::before { content: ""; position: absolute; left: 0; top: 0.75rem; width: 4px; height: 1px; bg-theme_primary; background: #000; }
+</style>
+{% endblock %}
