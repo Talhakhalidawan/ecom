@@ -114,16 +114,24 @@
             <div>
                 <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Fragrance For</span>
                 <div class="flex flex-wrap gap-3">
-                    {% for g_val, g_label in "men:MEN,women:WOMEN,unisex:UNISEX" %}
-                    {% with g_p=g_val %}
                     <label class="cursor-pointer group">
-                        <input type="radio" name="gender" value="{{ g_p.0 }}" {% if current_gender == g_p.0 %}checked{% endif %} class="sr-only peer">
+                        <input type="radio" name="gender" value="men" {% if current_gender == 'men' %}checked{% endif %} class="sr-only peer">
                         <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
-                            {{ g_p.1 }}
+                            MEN
                         </div>
                     </label>
-                    {% endwith %}
-                    {% endfor %}
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="gender" value="women" {% if current_gender == 'women' %}checked{% endif %} class="sr-only peer">
+                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                            WOMEN
+                        </div>
+                    </label>
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="gender" value="unisex" {% if current_gender == 'unisex' %}checked{% endif %} class="sr-only peer">
+                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                            UNISEX
+                        </div>
+                    </label>
                 </div>
             </div>
 
@@ -209,6 +217,5 @@
         border-radius: 10px;
     }
 </style>
-{% endblock %}
-</section>
+</style>
 {% endblock %}
