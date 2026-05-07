@@ -68,7 +68,7 @@
             <label class="cursor-pointer group">
                 <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
                 <div class="py-3 px-4 text-center border border-gray-100 text-[13px] text-gray-900 font-normal transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
-                    {{ size.name }}
+                    {{ size.get_value_display }}
                 </div>
             </label>
             {% endfor %}
