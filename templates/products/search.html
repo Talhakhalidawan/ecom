@@ -32,11 +32,18 @@
             </div>
         </div>
 
-        <div class="relative">
+        <div class="flex flex-col lg:flex-row gap-12">
+            <!-- Normal Sidebar for Desktop -->
+            <aside class="hidden lg:block w-72 flex-shrink-0">
+                <div class="sticky top-32">
+                    {% include 'products/partials/filter_form.html' %}
+                </div>
+            </aside>
+
             <!-- Results Grid -->
-            <div class="w-full">
+            <div class="flex-grow">
                 {% if products %}
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16">
+                <div class="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-16">
                     {% for product in products %}
                         {% include 'partials/product.html' %}
                     {% endfor %}
@@ -54,127 +61,25 @@
     </div>
 </section>
 
-<!-- Floating Filter Toggle -->
-<button onclick="toggleFilters()" class="fixed bottom-8 left-1/2 -translate-x-1/2 lg:left-8 lg:translate-x-0 z-[900] flex items-center gap-3 bg-black text-white px-8 py-4 rounded-full shadow-2xl hover:bg-theme_accent transition-all duration-500 group animate-in fade-in slide-in-from-bottom-8">
-    <i class="fas fa-sliders-h text-sm group-hover:rotate-90 transition-transform duration-500"></i>
-    <span class="text-[11px] tracking-[3px] uppercase font-bold">Refine Results</span>
+<!-- Mobile Filter Toggle (Icon Only, Downside WhatsApp) -->
+<button onclick="toggleFilters()" class="lg:hidden fixed bottom-8 right-8 z-[900] flex items-center justify-center w-14 h-14 bg-black text-white rounded-full shadow-2xl hover:bg-theme_accent transition-all duration-500 group animate-in fade-in slide-in-from-bottom-8">
+    <i class="fas fa-sliders-h text-lg"></i>
 </button>
 
-<!-- Filter Drawer Overlay -->
-<div id="filterOverlay" onclick="toggleFilters()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1001] opacity-0 invisible transition-all duration-500 ease-in-out"></div>
+<!-- Filter Drawer Overlay (Mobile Only) -->
+<div id="filterOverlay" onclick="toggleFilters()" class="lg:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-[1001] opacity-0 invisible transition-all duration-500 ease-in-out"></div>
 
-<!-- Filter Drawer -->
-<aside id="filterDrawer" class="fixed top-0 left-[-100%] w-full max-w-[450px] h-screen bg-white z-[1002] shadow-[20px_0_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-700 cubic-bezier(0.16,1,0.3,1) flex flex-col">
+<!-- Filter Drawer (Mobile Only) -->
+<aside id="filterDrawer" class="lg:hidden fixed top-0 left-[-100%] w-full max-w-[400px] h-screen bg-white z-[1002] shadow-[20px_0_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-700 cubic-bezier(0.16,1,0.3,1) flex flex-col">
     <div class="p-8 flex justify-between items-center border-b border-gray-50">
         <h2 class="font-serif text-2xl italic">Refine Selection</h2>
-        <button onclick="toggleFilters()" class="p-2 hover:rotate-90 transition-transform duration-500">
+        <button onclick="toggleFilters()" class="p-2">
             <i class="fas fa-times text-gray-300"></i>
         </button>
     </div>
 
-    <div class="flex-grow overflow-y-auto p-8 lg:p-12">
-        <form method="GET" action="{% url 'products:search' %}" id="filterForm" class="space-y-12">
-            <!-- Carry over search query -->
-            <input type="hidden" name="q" value="{{ query }}">
-
-            <!-- Collections -->
-            <div>
-                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Collections</span>
-                <div class="grid grid-cols-1 gap-6">
-                    <label class="flex items-center gap-4 cursor-pointer group">
-                        <input type="checkbox" name="new" value="true" {% if is_new %}checked{% endif %} class="sr-only peer">
-                        <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
-                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">New Arrivals</span>
-                    </label>
-                    <label class="flex items-center gap-4 cursor-pointer group">
-                        <input type="checkbox" name="bestseller" value="true" {% if is_bestseller %}checked{% endif %} class="sr-only peer">
-                        <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
-                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">Bestsellers</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Categories -->
-            <div>
-                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Categories</span>
-                <div class="space-y-4">
-                    {% for cat in all_categories %}
-                    <label class="flex items-center group cursor-pointer">
-                        <input type="radio" name="category" value="{{ cat }}" {% if current_category == cat %}checked{% endif %} class="sr-only peer">
-                        <span class="w-4 h-4 rounded-full border border-gray-200 mr-4 flex items-center justify-center transition-all peer-checked:border-theme_accent peer-checked:bg-theme_accent">
-                            <span class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></span>
-                        </span>
-                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition peer-checked:text-black peer-checked:font-medium">{{ cat }}</span>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Gender Section -->
-            <div>
-                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Fragrance For</span>
-                <div class="flex flex-wrap gap-3">
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="gender" value="men" {% if current_gender == 'men' %}checked{% endif %} class="sr-only peer">
-                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
-                            MEN
-                        </div>
-                    </label>
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="gender" value="women" {% if current_gender == 'women' %}checked{% endif %} class="sr-only peer">
-                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
-                            WOMEN
-                        </div>
-                    </label>
-                    <label class="cursor-pointer group">
-                        <input type="radio" name="gender" value="unisex" {% if current_gender == 'unisex' %}checked{% endif %} class="sr-only peer">
-                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
-                            UNISEX
-                        </div>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Size Selection -->
-            <div>
-                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Size / format</span>
-                <div class="grid grid-cols-2 gap-3">
-                    {% for size in all_sizes %}
-                    <label class="cursor-pointer group">
-                        <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} class="sr-only peer">
-                        <div class="py-3 px-4 text-center border border-gray-100 text-[13px] font-light transition-all peer-checked:bg-theme_accent peer-checked:text-white peer-checked:border-theme_accent group-hover:border-theme_accent">
-                            {{ size.name }}
-                        </div>
-                    </label>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <!-- Price Control -->
-            <div>
-                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Price Range</span>
-                <div class="space-y-6">
-                    <div class="flex items-center gap-6">
-                        <div class="flex-grow">
-                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
-                        </div>
-                        <span class="text-gray-200">/</span>
-                        <div class="flex-grow">
-                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="pt-12 flex flex-col gap-4">
-                <button type="submit" class="w-full py-5 bg-black text-white text-[11px] tracking-[4px] uppercase font-bold hover:bg-theme_accent transition-all duration-500 shadow-xl">
-                    Apply Refinements
-                </button>
-                <a href="{% url 'products:search' %}{% if query %}?q={{ query }}{% endif %}" class="text-center text-[10px] tracking-[3px] uppercase text-gray-400 hover:text-black transition-colors underline underline-offset-8 decoration-gray-100">
-                    Reset Selections
-                </a>
-            </div>
-        </form>
+    <div class="flex-grow overflow-y-auto p-8">
+        {% include 'products/partials/filter_form.html' %}
     </div>
 </aside>
 
@@ -195,27 +100,11 @@
             document.body.style.overflow = 'hidden';
         }
     }
-
-    // Auto-animate drawer if opened via hash or something (Optional)
-    window.addEventListener('DOMContentLoaded', () => {
-        // Any initial state logic if needed
-    });
 </script>
 
 <style>
     .cubic-bezier {
         transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
     }
-    aside#filterDrawer::-webkit-scrollbar {
-        width: 4px;
-    }
-    aside#filterDrawer::-webkit-scrollbar-track {
-        background: transparent;
-    }
-    aside#filterDrawer::-webkit-scrollbar-thumb {
-        background: #f1f1f1;
-        border-radius: 10px;
-    }
-</style>
 </style>
 {% endblock %}

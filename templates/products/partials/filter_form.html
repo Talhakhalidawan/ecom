@@ -1,0 +1,100 @@
+<form method="GET" action="{% url 'products:search' %}" id="filterForm" class="space-y-12">
+    <!-- Carry over search query -->
+    <input type="hidden" name="q" value="{{ query }}">
+
+    <!-- Collections -->
+    <div>
+        <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Collections</span>
+        <div class="grid grid-cols-1 gap-6">
+            <label class="flex items-center gap-4 cursor-pointer group">
+                <input type="checkbox" name="new" value="true" {% if is_new %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
+                <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">New Arrivals</span>
+            </label>
+            <label class="flex items-center gap-4 cursor-pointer group">
+                <input type="checkbox" name="bestseller" value="true" {% if is_bestseller %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
+                <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">Bestsellers</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div>
+        <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Categories</span>
+        <div class="space-y-4">
+            {% for cat in all_categories %}
+            <label class="flex items-center group cursor-pointer">
+                <input type="radio" name="category" value="{{ cat }}" {% if current_category == cat %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <span class="w-4 h-4 rounded-full border border-gray-200 mr-4 flex items-center justify-center transition-all peer-checked:border-theme_accent peer-checked:bg-theme_accent">
+                    <span class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></span>
+                </span>
+                <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition peer-checked:text-black peer-checked:font-medium">{{ cat }}</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Gender Section -->
+    <div>
+        <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Fragrance For</span>
+        <div class="flex flex-wrap gap-3">
+            <label class="cursor-pointer group">
+                <input type="radio" name="gender" value="men" {% if current_gender == 'men' %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                    MEN
+                </div>
+            </label>
+            <label class="cursor-pointer group">
+                <input type="radio" name="gender" value="women" {% if current_gender == 'women' %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                    WOMEN
+                </div>
+            </label>
+            <label class="cursor-pointer group">
+                <input type="radio" name="gender" value="unisex" {% if current_gender == 'unisex' %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                    UNISEX
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <!-- Size Selection -->
+    <div>
+        <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Size / format</span>
+        <div class="grid grid-cols-2 gap-3">
+            {% for size in all_sizes %}
+            <label class="cursor-pointer group">
+                <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
+                <div class="py-3 px-4 text-center border border-gray-100 text-[13px] font-light transition-all peer-checked:bg-theme_accent peer-checked:text-white peer-checked:border-theme_accent group-hover:border-theme_accent">
+                    {{ size.name }}
+                </div>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Price Control -->
+    <div>
+        <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Price Range</span>
+        <div class="space-y-6">
+            <div class="flex items-center gap-6">
+                <div class="flex-grow">
+                    <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
+                </div>
+                <span class="text-gray-200">/</span>
+                <div class="flex-grow">
+                    <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
+                </div>
+            </div>
+            <button type="submit" class="w-full py-4 bg-black text-white text-[10px] tracking-[3px] uppercase hover:bg-theme_accent transition-all">Update Price</button>
+        </div>
+    </div>
+
+    <div class="pt-8 flex flex-col gap-4">
+        <a href="{% url 'products:search' %}{% if query %}?q={{ query }}{% endif %}" class="text-center text-[10px] tracking-[3px] uppercase text-gray-400 hover:text-black transition-colors underline underline-offset-8 decoration-gray-100">
+            Reset Selections
+        </a>
+    </div>
+</form>
