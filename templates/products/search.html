@@ -2,173 +2,213 @@
 
 {% block content %}
 <section class="py-12 bg-gray-50 min-h-screen">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[1400px] mx-auto px-6">
         <!-- Breadcrumbs & Header -->
-        <div class="mb-10">
-            <nav class="flex mb-4 text-xs tracking-widest uppercase text-gray-400">
+        <div class="mb-12">
+            <nav class="flex mb-4 text-[10px] tracking-[3px] uppercase text-gray-400">
                 <a href="/" class="hover:text-theme_primary transition">Home</a>
-                <span class="mx-2">/</span>
-                <span class="text-gray-600">Search Results</span>
+                <span class="mx-3 opacity-50">/</span>
+                <span class="text-black">Search</span>
             </nav>
-            <h1 class="font-serif text-3xl md:text-4xl text-theme_primary">
-                {% if query %}Results for "{{ query }}"{% else %}Discover All Fragrances{% endif %}
-                <span class="text-sm font-sans font-light text-gray-400 ml-3">({{ products.count }} Items)</span>
-            </h1>
+            <div class="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                <div>
+                    <h1 class="font-serif text-5xl md:text-6xl text-theme_primary mb-2">
+                        {% if query %}{{ query }}{% else %}Collection{% endif %}
+                    </h1>
+                    <p class="text-gray-400 font-light tracking-wide uppercase text-[11px]">
+                        Showing {{ products.count }} Exquisite Fragrances
+                    </p>
+                </div>
+                
+                <!-- Desktop Sort -->
+                <div class="hidden lg:flex items-center gap-4 py-2 border-b border-gray-100">
+                    <span class="text-[10px] tracking-[2px] uppercase text-gray-400">Sort By:</span>
+                    <select form="filterForm" name="sort" onchange="this.form.submit()" class="bg-transparent text-[12px] font-medium text-black focus:outline-none cursor-pointer uppercase tracking-wider">
+                        <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Newest Arrivals</option>
+                        <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Ascending</option>
+                        <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: Descending</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
-        <div class="flex flex-col lg:flex-row gap-10">
-            <!-- Sidebar Filters -->
-            <aside class="w-full lg:w-64 flex-shrink-0">
-                <form method="GET" action="{% url 'products:search' %}" id="filterForm" class="space-y-8">
-                    <!-- Carry over search query -->
-                    <input type="hidden" name="q" value="{{ query }}">
-
-                    <!-- Sorting (Mobile visible) -->
-                    <div class="lg:hidden mb-6">
-                        <label class="block text-[11px] tracking-widest uppercase text-gray-500 mb-2">Sort By</label>
-                        <select name="sort" onchange="this.form.submit()" class="w-full bg-white border border-gray-200 py-3 px-4 text-sm focus:outline-none focus:border-theme_primary transition">
-                            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Newest First</option>
-                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                        </select>
-                    </div>
-
-                    <!-- Quick Filters -->
-                    <div>
-                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Collections</h3>
-                        <div class="space-y-4">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" name="new" value="true" {% if is_new %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
-                                <div class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors peer-checked:bg-theme_primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
-                                <span class="text-[13px] text-gray-600 transition group-hover:text-theme_primary">New Arrivals</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="checkbox" name="bestseller" value="true" {% if is_bestseller %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
-                                <div class="w-10 h-5 bg-gray-200 rounded-full relative transition-colors peer-checked:bg-theme_primary after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-5"></div>
-                                <span class="text-[13px] text-gray-600 transition group-hover:text-theme_primary">Bestsellers</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Category Filter -->
-                    <div>
-                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Category</h3>
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="category" value="" {% if not current_category %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if not current_category %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if not current_category %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if not current_category %}font-medium text-theme_primary{% endif %}">All Categories</span>
-                            </label>
-                            {% for cat in all_categories %}
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="category" value="{{ cat }}" {% if current_category == cat %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_category == cat %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_category == cat %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_category == cat %}font-medium text-theme_primary{% endif %}">{{ cat }}</span>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Experience Filter (Gender) -->
-                    <div>
-                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Experience</h3>
-                        <div class="space-y-2">
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="gender" value="" {% if not current_gender %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if not current_gender %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if not current_gender %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if not current_gender %}font-medium text-theme_primary{% endif %}">All Experiences</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="gender" value="men" {% if current_gender == 'men' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'men' %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'men' %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'men' %}font-medium text-theme_primary{% endif %}">Men</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="gender" value="women" {% if current_gender == 'women' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'women' %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'women' %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'women' %}font-medium text-theme_primary{% endif %}">Women</span>
-                            </label>
-                            <label class="flex items-center gap-3 cursor-pointer group">
-                                <input type="radio" name="gender" value="unisex" {% if current_gender == 'unisex' %}checked{% endif %} onchange="this.form.submit()" class="sr-only">
-                                <span class="w-4 h-4 rounded-full border border-gray-300 flex items-center justify-center transition-all group-hover:border-theme_primary {% if current_gender == 'unisex' %}border-theme_primary bg-theme_primary{% endif %}">
-                                    <span class="w-1.5 h-1.5 rounded-full bg-white {% if current_gender == 'unisex' %}opacity-100{% else %}opacity-0{% endif %}"></span>
-                                </span>
-                                <span class="text-[14px] text-gray-600 transition group-hover:text-theme_primary {% if current_gender == 'unisex' %}font-medium text-theme_primary{% endif %}">Unisex</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Size Filter -->
-                    <div>
-                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Format</h3>
-                        <div class="grid grid-cols-2 gap-2">
-                            {% for size in all_sizes %}
-                            <label class="relative cursor-pointer group">
-                                <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} onchange="this.form.submit()" class="sr-only peer">
-                                <div class="py-2 px-3 text-center border border-gray-200 text-[12px] transition-all peer-checked:bg-theme_primary peer-checked:text-white peer-checked:border-theme_primary group-hover:border-theme_primary">
-                                    {{ size.name }}
-                                </div>
-                            </label>
-                            {% endfor %}
-                        </div>
-                    </div>
-
-                    <!-- Price Filter -->
-                    <div>
-                        <h3 class="font-sans text-[11px] tracking-[2px] uppercase text-gray-900 mb-4 border-b border-gray-100 pb-2">Price Range</h3>
-                        <div class="flex items-center gap-4">
-                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-white border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:border-theme_primary transition">
-                            <span class="text-gray-300">-</span>
-                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-white border border-gray-200 py-2 px-3 text-xs focus:outline-none focus:border-theme_primary transition">
-                        </div>
-                        <button type="submit" class="w-full mt-4 py-2 bg-theme_primary text-white text-[10px] tracking-widest uppercase hover:bg-black transition">Apply Price</button>
-                    </div>
-
-                    <!-- Reset -->
-                    <a href="{% url 'products:search' %}{% if query %}?q={{ query }}{% endif %}" class="block text-center text-[11px] text-gray-400 tracking-widest uppercase hover:text-theme_primary transition underline underline-offset-4">Reset All Filters</a>
-                </form>
-            </aside>
-
+        <div class="relative">
             <!-- Results Grid -->
-            <div class="flex-grow">
-                <!-- Toolbar -->
-                <div class="hidden lg:flex justify-end mb-8 border-b border-gray-100 pb-5">
-                    <div class="flex items-center gap-4">
-                        <span class="text-[11px] tracking-widest uppercase text-gray-400">Sort By:</span>
-                        <select form="filterForm" name="sort" onchange="this.form.submit()" class="bg-transparent text-[13px] font-medium text-gray-700 focus:outline-none cursor-pointer">
-                            <option value="new" {% if current_sort == 'new' %}selected{% endif %}>Newest First</option>
-                            <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
-                            <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
-                        </select>
-                    </div>
-                </div>
-
+            <div class="w-full">
                 {% if products %}
-                <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-12">
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16">
                     {% for product in products %}
                         {% include 'partials/product.html' %}
                     {% endfor %}
                 </div>
                 {% else %}
-                <div class="py-24 text-center">
-                    <div class="text-6xl mb-6 opacity-20">奢</div>
-                    <h3 class="font-serif text-2xl text-gray-400 mb-2">No Fragrances Found</h3>
-                    <p class="text-gray-400 font-light max-w-sm mx-auto">We couldn't find any products matching your specific selection. Try broadening your criteria or reset filters.</p>
-                    <a href="{% url 'products:search' %}" class="inline-block mt-8 text-[12px] tracking-[2px] uppercase border-b border-theme_primary pb-1 text-theme_primary">Explore the full collection</a>
+                <div class="py-32 text-center">
+                    <div class="text-8xl mb-8 opacity-5 font-serif italic">Luxe</div>
+                    <h3 class="font-serif text-3xl text-gray-300 mb-4 italic">The scent remains elusive.</h3>
+                    <p class="text-gray-400 font-light max-w-sm mx-auto leading-relaxed">We couldn't find any products matching your specific selection. Try broadening your criteria or reset filters.</p>
+                    <a href="{% url 'products:search' %}" class="inline-block mt-12 text-[11px] tracking-[3px] uppercase border-b border-theme_primary pb-2 text-theme_primary hover:text-black hover:border-black transition-all">Explore Full Collection</a>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
+</section>
+
+<!-- Floating Filter Toggle -->
+<button onclick="toggleFilters()" class="fixed bottom-8 left-1/2 -translate-x-1/2 lg:left-8 lg:translate-x-0 z-[900] flex items-center gap-3 bg-black text-white px-8 py-4 rounded-full shadow-2xl hover:bg-theme_accent transition-all duration-500 group animate-in fade-in slide-in-from-bottom-8">
+    <i class="fas fa-sliders-h text-sm group-hover:rotate-90 transition-transform duration-500"></i>
+    <span class="text-[11px] tracking-[3px] uppercase font-bold">Refine Results</span>
+</button>
+
+<!-- Filter Drawer Overlay -->
+<div id="filterOverlay" onclick="toggleFilters()" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[1001] opacity-0 invisible transition-all duration-500 ease-in-out"></div>
+
+<!-- Filter Drawer -->
+<aside id="filterDrawer" class="fixed top-0 left-[-100%] w-full max-w-[450px] h-screen bg-white z-[1002] shadow-[20px_0_60px_-15px_rgba(0,0,0,0.2)] transition-all duration-700 cubic-bezier(0.16,1,0.3,1) flex flex-col">
+    <div class="p-8 flex justify-between items-center border-b border-gray-50">
+        <h2 class="font-serif text-2xl italic">Refine Selection</h2>
+        <button onclick="toggleFilters()" class="p-2 hover:rotate-90 transition-transform duration-500">
+            <i class="fas fa-times text-gray-300"></i>
+        </button>
+    </div>
+
+    <div class="flex-grow overflow-y-auto p-8 lg:p-12">
+        <form method="GET" action="{% url 'products:search' %}" id="filterForm" class="space-y-12">
+            <!-- Carry over search query -->
+            <input type="hidden" name="q" value="{{ query }}">
+
+            <!-- Collections -->
+            <div>
+                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Collections</span>
+                <div class="grid grid-cols-1 gap-6">
+                    <label class="flex items-center gap-4 cursor-pointer group">
+                        <input type="checkbox" name="new" value="true" {% if is_new %}checked{% endif %} class="sr-only peer">
+                        <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
+                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">New Arrivals</span>
+                    </label>
+                    <label class="flex items-center gap-4 cursor-pointer group">
+                        <input type="checkbox" name="bestseller" value="true" {% if is_bestseller %}checked{% endif %} class="sr-only peer">
+                        <div class="w-12 h-6 bg-gray-100 rounded-full relative transition-colors peer-checked:bg-theme_accent after:content-[''] after:absolute after:top-1 after:left-1 after:bg-white after:w-4 after:h-4 after:rounded-full after:transition-transform peer-checked:after:translate-x-6"></div>
+                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition">Bestsellers</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div>
+                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Categories</span>
+                <div class="space-y-4">
+                    {% for cat in all_categories %}
+                    <label class="flex items-center group cursor-pointer">
+                        <input type="radio" name="category" value="{{ cat }}" {% if current_category == cat %}checked{% endif %} class="sr-only peer">
+                        <span class="w-4 h-4 rounded-full border border-gray-200 mr-4 flex items-center justify-center transition-all peer-checked:border-theme_accent peer-checked:bg-theme_accent">
+                            <span class="w-1.5 h-1.5 rounded-full bg-white opacity-0 peer-checked:opacity-100"></span>
+                        </span>
+                        <span class="text-[15px] font-light text-gray-600 group-hover:text-black transition peer-checked:text-black peer-checked:font-medium">{{ cat }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Gender Section -->
+            <div>
+                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Fragrance For</span>
+                <div class="flex flex-wrap gap-3">
+                    {% for g_val, g_label in "men:MEN,women:WOMEN,unisex:UNISEX"|split:"," %}
+                    {% with g_p=g_val|split:":" %}
+                    <label class="cursor-pointer group">
+                        <input type="radio" name="gender" value="{{ g_p.0 }}" {% if current_gender == g_p.0 %}checked{% endif %} class="sr-only peer">
+                        <div class="px-6 py-3 border border-gray-100 text-[11px] tracking-[2px] transition-all peer-checked:bg-black peer-checked:text-white peer-checked:border-black group-hover:border-black">
+                            {{ g_p.1 }}
+                        </div>
+                    </label>
+                    {% endwith %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Size Selection -->
+            <div>
+                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Size / format</span>
+                <div class="grid grid-cols-2 gap-3">
+                    {% for size in all_sizes %}
+                    <label class="cursor-pointer group">
+                        <input type="checkbox" name="size" value="{{ size.id }}" {% if size.id in current_sizes %}checked{% endif %} class="sr-only peer">
+                        <div class="py-3 px-4 text-center border border-gray-100 text-[13px] font-light transition-all peer-checked:bg-theme_accent peer-checked:text-white peer-checked:border-theme_accent group-hover:border-theme_accent">
+                            {{ size.name }}
+                        </div>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Price Control -->
+            <div>
+                <span class="text-[10px] tracking-[3px] uppercase text-gray-400 block mb-6">Price Range</span>
+                <div class="space-y-6">
+                    <div class="flex items-center gap-6">
+                        <div class="flex-grow">
+                            <input type="number" name="min_price" value="{{ min_price }}" placeholder="Min" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
+                        </div>
+                        <span class="text-gray-200">/</span>
+                        <div class="flex-grow">
+                            <input type="number" name="max_price" value="{{ max_price }}" placeholder="Max" class="w-full bg-white border-b border-gray-100 py-3 text-sm focus:outline-none focus:border-black transition font-light">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-12 flex flex-col gap-4">
+                <button type="submit" class="w-full py-5 bg-black text-white text-[11px] tracking-[4px] uppercase font-bold hover:bg-theme_accent transition-all duration-500 shadow-xl">
+                    Apply Refinements
+                </button>
+                <a href="{% url 'products:search' %}{% if query %}?q={{ query }}{% endif %}" class="text-center text-[10px] tracking-[3px] uppercase text-gray-400 hover:text-black transition-colors underline underline-offset-8 decoration-gray-100">
+                    Reset Selections
+                </a>
+            </div>
+        </form>
+    </div>
+</aside>
+
+<script>
+    function toggleFilters() {
+        const drawer = document.getElementById('filterDrawer');
+        const overlay = document.getElementById('filterOverlay');
+        
+        if (drawer.style.left === '0px') {
+            drawer.style.left = '-100%';
+            overlay.classList.remove('opacity-100', 'visible');
+            overlay.classList.add('opacity-0', 'invisible');
+            document.body.style.overflow = '';
+        } else {
+            drawer.style.left = '0px';
+            overlay.classList.remove('opacity-0', 'invisible');
+            overlay.classList.add('opacity-100', 'visible');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    // Auto-animate drawer if opened via hash or something (Optional)
+    window.addEventListener('DOMContentLoaded', () => {
+        // Any initial state logic if needed
+    });
+</script>
+
+<style>
+    .cubic-bezier {
+        transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    aside#filterDrawer::-webkit-scrollbar {
+        width: 4px;
+    }
+    aside#filterDrawer::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    aside#filterDrawer::-webkit-scrollbar-thumb {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+</style>
+{% endblock %}
 </section>
 {% endblock %}
