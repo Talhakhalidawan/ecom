@@ -51,14 +51,14 @@
             
             <nav class="flex-grow px-4 space-y-2">
                 <a href="{% url 'administration:dashboard' %}" class="flex items-center gap-4 px-4 py-3 rounded-md hover:bg-white/10 transition group">
-                    <i class="fas fa-home text-sm opacity-50 group-hover:opacity-100"></i>
+                    <i class="fas fa-home text-sm opacity-70 group-hover:opacity-100"></i>
                     <span class="text-sm font-light">Overview</span>
                 </a>
                 <div class="pt-6 pb-2 px-4">
-                    <span class="text-[10px] tracking-[3px] uppercase text-gray-500 font-bold">Catalog</span>
+                    <span class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Catalog</span>
                 </div>
                 <a href="{% url 'administration:add_product' %}" class="flex items-center gap-4 px-4 py-3 rounded-md hover:bg-white/10 transition group">
-                    <i class="fas fa-plus text-sm opacity-50 group-hover:opacity-100"></i>
+                    <i class="fas fa-plus text-sm opacity-70 group-hover:opacity-100"></i>
                     <span class="text-sm font-light">Add Product</span>
                 </a>
                 <a href="#" class="flex items-center gap-4 px-4 py-3 rounded-md hover:bg-white/10 transition group">
@@ -84,8 +84,8 @@
                 </div>
                 <div class="flex items-center gap-6">
                     <div class="text-right">
-                        <p class="text-sm font-medium">{{ request.user.get_full_name|default:request.user.username }}</p>
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400">Master Perfumer</p>
+                        <p class="text-sm font-bold text-gray-900">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-500 font-medium">Master Perfumer</p>
                     </div>
                 </div>
             </header>

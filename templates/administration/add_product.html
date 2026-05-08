@@ -12,29 +12,29 @@
 
     <!-- Core Details -->
     <div class="space-y-8">
-        <div class="border-b border-gray-100 pb-4">
-            <h3 class="font-serif text-xl">Identity & Story</h3>
-            <p class="text-[11px] tracking-widest uppercase text-gray-400 mt-1">Capture the essence of the perfume</p>
+        <div class="border-b border-gray-200 pb-4">
+            <h3 class="font-serif text-2xl text-gray-900">Identity & Story</h3>
+            <p class="text-[11px] tracking-widest uppercase text-gray-500 mt-1 font-medium">Capture the essence of the perfume</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Fragrance Name</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Fragrance Name</label>
                 {{ form.name }}
                 {{ form.name.errors }}
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Category</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Category</label>
                 {{ form.category }}
                 {{ form.category.errors }}
             </div>
             <div class="md:col-span-2 space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Hook / Short Intro</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Hook / Short Intro</label>
                 {{ form.short_description }}
                 {{ form.short_description.errors }}
             </div>
             <div class="md:col-span-2 space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Full Narrative</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Full Narrative</label>
                 {{ form.description }}
                 {{ form.description.errors }}
             </div>
@@ -43,22 +43,22 @@
 
     <!-- Perfume DNA -->
     <div class="space-y-8">
-        <div class="border-b border-gray-100 pb-4">
-            <h3 class="font-serif text-xl">Perfume DNA</h3>
-            <p class="text-[11px] tracking-widest uppercase text-gray-400 mt-1">Classification and Olfactory pyramid</p>
+        <div class="border-b border-gray-200 pb-4">
+            <h3 class="font-serif text-2xl text-gray-900">Perfume DNA</h3>
+            <p class="text-[11px] tracking-widest uppercase text-gray-500 mt-1 font-medium">Classification and Olfactory pyramid</p>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Gender</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Gender</label>
                 {{ form.gender }}
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Concentration</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Concentration</label>
                 {{ form.concentration }}
             </div>
             <div class="space-y-2">
-                <label class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Base Price ($)</label>
+                <label class="text-[10px] tracking-[3px] uppercase text-gray-800 font-black">Base Price ($)</label>
                 {{ form.base_price }}
             </div>
         </div>
@@ -88,31 +88,31 @@
 
     <!-- Media Library -->
     <div class="space-y-8">
-        <div class="border-b border-gray-100 pb-4">
-            <h3 class="font-serif text-xl">Imagery Library</h3>
-            <p class="text-[11px] tracking-widest uppercase text-gray-400 mt-1">High-end visual assets for the product</p>
+        <div class="border-b border-gray-200 pb-4">
+            <h3 class="font-serif text-2xl text-gray-900">Imagery Library</h3>
+            <p class="text-[11px] tracking-widest uppercase text-gray-500 mt-1 font-medium">High-end visual assets for the product</p>
         </div>
         
-        <div class="bg-white border border-gray-100">
+        <div class="bg-white border border-gray-200">
             {{ media_formset.management_form }}
-            <div class="divide-y divide-gray-50">
+            <div class="divide-y divide-gray-100">
                 {% for media_form in media_formset %}
-                <div class="p-6 grid grid-cols-1 md:grid-cols-4 gap-6 items-center">
+                <div class="p-8 grid grid-cols-1 md:grid-cols-4 gap-8 items-center bg-white hover:bg-gray-50/50 transition">
                     <div class="md:col-span-2 space-y-2">
-                        <label class="text-[10px] tracking-[2px] uppercase text-gray-300">File Attachment</label>
+                        <label class="text-[10px] tracking-[2px] uppercase text-gray-500 font-bold">File Attachment</label>
                         {{ media_form.file }}
                     </div>
                     <div class="space-y-2">
-                        <label class="text-[10px] tracking-[2px] uppercase text-gray-300">Alt Text</label>
+                        <label class="text-[10px] tracking-[2px] uppercase text-gray-500 font-bold">Alt Text</label>
                         {{ media_form.alt_text }}
                     </div>
                     <div class="flex items-center gap-6 pt-4 md:pt-0">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-3">
                             {{ media_form.is_main }}
-                            <label class="text-[10px] uppercase tracking-widest">Main</label>
+                            <label class="text-[10px] uppercase tracking-widest font-bold text-gray-700">Main</label>
                         </div>
-                        <div class="flex items-center gap-2">
-                            <label class="text-[10px] uppercase tracking-widest">Order</label>
+                        <div class="flex items-center gap-3">
+                            <label class="text-[10px] uppercase tracking-widest font-bold text-gray-700">Order</label>
                             {{ media_form.display_order }}
                         </div>
                     </div>

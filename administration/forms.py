@@ -20,7 +20,7 @@ class ProductForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
-            field.widget.attrs['class'] = 'w-full bg-gray-50 border border-gray-100 px-4 py-3 text-sm focus:outline-none focus:border-black transition-all'
+            field.widget.attrs['class'] = 'w-full bg-white border border-gray-200 px-4 py-3 text-sm text-gray-900 focus:outline-none focus:border-black transition-all'
             if isinstance(field.widget, forms.CheckboxSelectMultiple):
                  field.widget.attrs['class'] = 'flex flex-wrap gap-4 text-sm'
             if isinstance(field.widget, forms.CheckboxInput):
