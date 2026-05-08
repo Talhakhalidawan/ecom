@@ -1,0 +1,87 @@
+{% extends 'administration/admin_base.html' %}
+
+{% block title %}Dashboard | Luxe Management{% endblock %}
+
+{% block header_title %}
+    <h2 class="font-serif text-2xl font-normal">Dashboard Overview</h2>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+    <!-- Stat Card -->
+    <div class="bg-white p-8 border border-gray-100 space-y-4">
+        <div class="flex justify-between items-start">
+            <span class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Total Collection</span>
+            <i class="fas fa-gem text-theme_accent opacity-20"></i>
+        </div>
+        <p class="text-4xl font-serif">{{ total_products }}</p>
+        <p class="text-xs text-gray-400 font-light">Unique Fragrances</p>
+    </div>
+
+    <!-- Stat Card -->
+    <div class="bg-white p-8 border border-gray-100 space-y-4">
+        <div class="flex justify-between items-start">
+            <span class="text-[10px] tracking-[3px] uppercase text-gray-400 font-bold">Total Visits</span>
+            <i class="fas fa-users text-theme_accent opacity-20"></i>
+        </div>
+        <p class="text-4xl font-serif">{{ total_visits }}</p>
+        <p class="text-xs text-gray-400 font-light">Visitor Interactions</p>
+    </div>
+
+    <!-- Quick Action -->
+    <div class="bg-black p-8 text-white relative overflow-hidden flex flex-col justify-between group">
+        <div class="relative z-10">
+            <span class="text-[10px] tracking-[3px] uppercase text-gray-500 font-bold">Quick Execution</span>
+            <h3 class="font-serif text-2xl mt-2">New Offering</h3>
+        </div>
+        <a href="{% url 'administration:add_product' %}" class="relative z-10 inline-flex items-center gap-4 text-xs tracking-[4px] uppercase font-bold mt-4 group-hover:text-theme_accent transition">
+            Begin Creation <i class="fas fa-arrow-right"></i>
+        </a>
+        <i class="fas fa-plus absolute -bottom-4 -right-4 text-8xl opacity-10 group-hover:scale-110 transition-transform duration-700"></i>
+    </div>
+</div>
+
+<div class="mt-12 grid grid-cols-1 xl:grid-cols-2 gap-12">
+    <!-- Recent Activity -->
+    <div class="space-y-6">
+        <h3 class="font-serif text-xl">Recent Interactions</h3>
+        <div class="bg-white border border-gray-100 overflow-hidden">
+            {% for event in recent_events %}
+            <div class="p-4 border-b border-gray-50 flex items-center justify-between hover:bg-gray-50 transition">
+                <div class="flex items-center gap-4">
+                    <div class="w-2 h-2 rounded-full bg-theme_accent"></div>
+                    <div>
+                        <p class="text-sm font-medium">{{ event.product.name }}</p>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400">{{ event.get_event_type_display }}</p>
+                    </div>
+                </div>
+                <span class="text-[10px] text-gray-300">{{ event.created_at|timesince }} ago</span>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center text-gray-400 text-sm">No recent events recorded.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Recent Products -->
+    <div class="space-y-6">
+        <h3 class="font-serif text-xl">Newly Added</h3>
+        <div class="bg-white border border-gray-100 overflow-hidden">
+            {% for prod in recent_products %}
+            <div class="p-4 border-b border-gray-50 flex items-center justify-between hover:bg-gray-50 transition">
+                <div class="flex items-center gap-4">
+                    <div class="w-10 h-10 bg-gray-100 flex items-center justify-center font-serif text-lg italic opacity-20">L</div>
+                    <div>
+                        <p class="text-sm font-medium">{{ prod.name }}</p>
+                        <p class="text-[10px] uppercase tracking-widest text-gray-400">{{ prod.category }}</p>
+                    </div>
+                </div>
+                <p class="text-sm font-serif"> ${{ prod.base_price }} </p>
+            </div>
+            {% empty %}
+            <div class="p-8 text-center text-gray-400 text-sm">Catalog is currently empty.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
