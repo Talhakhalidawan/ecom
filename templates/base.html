@@ -85,6 +85,37 @@
 
     {% include 'partials/footer.html' %}
     {% include 'partials/whatsapp_button.html' %}
+    
+    <!-- Analytics Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const trackEvent = (productId, eventType) => {
+                fetch('/analytics/track/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        event_type: eventType
+                    })
+                }).catch(err => console.debug('Analytics error:', err));
+            };
+
+            // Global listener for analytics attributes
+            document.addEventListener('click', (e) => {
+                const target = e.target.closest('[data-analytics-id]');
+                if (target) {
+                    const id = target.getAttribute('data-analytics-id');
+                    const event = target.getAttribute('data-analytics-event');
+                    if (id && event) {
+                        trackEvent(id, event);
+                    }
+                }
+            });
+        });
+    </script>
 
     <!-- Commerce Scripts -->
     <script src="/static/js/cart.js"></script>
